@@ -41,6 +41,7 @@ public class StudentsService : IStudentsService
         student.FirstName = dto.FirstName ?? student.FirstName;
         student.LastName = dto.LastName ?? student.LastName;
         student.IsActive = dto.IsActive ?? student.IsActive;
+        student.Note = dto.Note ?? student.Note;
 
         return student;
     }

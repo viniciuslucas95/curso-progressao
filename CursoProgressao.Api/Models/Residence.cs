@@ -1,27 +1,42 @@
 ﻿using CursoProgressao.Api.Dto.Residences;
-using System.ComponentModel.DataAnnotations;
 
-namespace CursoProgressao.Api.Models
+namespace CursoProgressao.Api.Models;
+
+public class Residence : Model
 {
-    public class Residence : Model
+    public string? ZipCode
     {
-        [Display(Name = "Zip Code")]
-        [RegularExpression("^[0-9]{5}-[0-9]{3}$", ErrorMessage = "Zip code format must be XXXXX-XXX")]
-        public uint? ZipCode { get; private set; }
-        public string? Address { get; private set; }
-
-        public Residence(uint? zipCode, string? address)
+        get => _zipCode;
+        set
         {
-            ZipCode = zipCode;
-            Address = address;
-
+            _zipCode = value;
+            UpdateModificationDate();
         }
-
-        public static implicit operator GetOneResidenceDto(Residence residence)
-            => new()
-            {
-                Address = residence.Address,
-                ZipCode = residence.ZipCode
-            };
     }
+    public string? Address
+    {
+        get => _address;
+        set
+        {
+            _address = value;
+            UpdateModificationDate();
+        }
+    }
+    public Guid StudentId { get; private init; }
+    public Student Student { get; private init; } = null!;
+
+    private string? _zipCode;
+    private string? _address;
+
+    public Residence(Guid studentId)
+    {
+        StudentId = studentId;
+    }
+
+    public static implicit operator GetOneResidenceDto(Residence residence)
+        => new()
+        {
+            Address = residence.Address,
+            ZipCode = residence.ZipCode
+        };
 }

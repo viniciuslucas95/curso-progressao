@@ -1,10 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CursoProgressao.Api.Dto.Contacts;
 
 namespace CursoProgressao.Api.Models;
 
 public class Contact : Model
 {
-    [EmailAddress(ErrorMessage = "Wrong email format")]
     public string? Email
     {
         get => _email;
@@ -14,18 +13,42 @@ public class Contact : Model
             UpdateModificationDate();
         }
     }
-    [RegularExpression("^[(][0-9]{2}[)] [0-9]{4}-[0-9]{4}$", ErrorMessage = "Landline format must be (XX) XXXX-XXX")]
-    public string? Landline { get; private set; }
-    [Display(Name = "Cell Phone")]
-    [RegularExpression("^[(][0-9]{2}[)] [0-9]{5}-[0-9]{4}$", ErrorMessage = "Cell phone format must be (XX) XXXXX-XXX")]
-    public string? CellPhone { get; private set; }
+    public string? Landline
+    {
+        get => _landline;
+        set
+        {
+            _landline = value;
+            UpdateModificationDate();
+        }
+    }
+    public string? CellPhone
+    {
+        get => _cellPhone;
+        set
+        {
+            _cellPhone = value;
+            UpdateModificationDate();
+        }
+    }
 
     private string? _email;
+    private string? _landline;
+    private string? _cellPhone;
 
-    public Contact(string? email, string? landline, string? cellPhone)
+    public Guid StudentId { get; private init; }
+    public Student Student { get; private init; } = null!;
+
+    public Contact(Guid studentId)
     {
-        _email = email;
-        Landline = landline;
-        CellPhone = cellPhone;
+        StudentId = studentId;
     }
+
+    public static implicit operator GetOneContactDto(Contact contact)
+        => new()
+        {
+            Email = contact.Email,
+            CellPhone = contact.CellPhone,
+            Landline = contact.Landline
+        };
 }

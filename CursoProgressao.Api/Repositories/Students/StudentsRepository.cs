@@ -27,6 +27,9 @@ public class StudentsRepository : IStudentsRepository
                 FirstName = student.FirstName,
                 LastName = student.LastName,
                 Document = student.Document,
+                Contact = student.Contact,
+                Note = student.Note,
+                Residence = student.Residence,
                 Responsible = new GetOneResponsibleDto
                 {
                     FirstName = student.Responsible.FirstName,
@@ -47,6 +50,9 @@ public class StudentsRepository : IStudentsRepository
                 FirstName = student.FirstName,
                 LastName = student.LastName,
                 Document = student.Document,
+                Contact = student.Contact,
+                Residence = student.Residence,
+                Note = student.Note,
                 Responsible = new GetOneResponsibleDto
                 {
                     FirstName = student.Responsible.FirstName,
@@ -63,6 +69,8 @@ public class StudentsRepository : IStudentsRepository
             .Where(student => student.Id == id)
             .Include(nameof(Document))
             .Include(nameof(Responsible))
+            .Include(nameof(Contact))
+            .Include(nameof(Residence))
             .Include($"{nameof(Responsible)}.{nameof(Document)}")
             .SingleOrDefaultAsync();
     }

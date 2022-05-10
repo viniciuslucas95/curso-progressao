@@ -3,6 +3,8 @@ using CursoProgressao.Api.Data.UnitOfWork;
 using CursoProgressao.Api.Filters;
 using CursoProgressao.Api.Middlewares;
 using CursoProgressao.Api.Repositories.Students;
+using CursoProgressao.Api.Services.Contacts;
+using CursoProgressao.Api.Services.Residences;
 using CursoProgressao.Api.Services.ResponsibleDocuments;
 using CursoProgressao.Api.Services.Responsibles;
 using CursoProgressao.Api.Services.StudentDocuments;
@@ -22,6 +24,8 @@ builder.Services.AddTransient<IStudentsService, StudentsService>();
 builder.Services.AddTransient<IStudentDocumentsService, StudentDocumentsService>();
 builder.Services.AddTransient<IResponsiblesService, ResponsiblesServices>();
 builder.Services.AddTransient<IResponsibleDocumentsService, ResponsibleDocumentsService>();
+builder.Services.AddTransient<IContactsService, ContactsService>();
+builder.Services.AddTransient<IResidencesService, ResidencesService>();
 
 builder.Services.AddControllers(options =>
     options.Filters.Add(new ModelExceptionHandler())
