@@ -1,38 +1,69 @@
-﻿using Api.Data.Contexts;
-using Api.Dto.Students;
-using Api.Models;
+﻿using CursoProgressao.Api.Data.Contexts;
+using CursoProgressao.Api.Dto.Responsibles;
+using CursoProgressao.Api.Dto.Students;
+using CursoProgressao.Api.Models;
+using CursoProgressao.Api.Models.Documents;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Repositories.Students
+namespace CursoProgressao.Api.Repositories.Students;
+
+public class StudentsRepository : IStudentsRepository
 {
-    public class StudentsRepository : IStudentsRepository
+    private readonly SchoolContext _context;
+
+    public StudentsRepository(SchoolContext context) => _context = context;
+
+    public void Create(Student student) => _context.Students.Add(student);
+
+    public void Delete(Student student) => _context.Students.Remove(student);
+
+    public async Task<IEnumerable<GetAllStudentsDto>> GetAllAsync()
     {
-        private readonly SchoolContext _context;
+        return await _context.Students
+            .AsNoTracking()
+            .Select(student => new GetAllStudentsDto
+            {
+                Id = student.Id,
+                FirstName = student.FirstName,
+                LastName = student.LastName,
+                Document = student.Document,
+                Responsible = new GetOneResponsibleDto
+                {
+                    FirstName = student.Responsible.FirstName,
+                    LastName = student.Responsible.LastName,
+                    Document = student.Responsible.Document
+                }
+            })
+            .ToListAsync();
+    }
 
-        public StudentsRepository(SchoolContext context)
-        {
-            _context = context;
-        }
+    public async Task<GetOneStudentDto?> GetOneAsync(Guid id)
+    {
+        return await _context.Students
+            .AsNoTracking()
+            .Where(student => student.Id == id)
+            .Select(student => new GetOneStudentDto
+            {
+                FirstName = student.FirstName,
+                LastName = student.LastName,
+                Document = student.Document,
+                Responsible = new GetOneResponsibleDto
+                {
+                    FirstName = student.Responsible.FirstName,
+                    LastName = student.Responsible.LastName,
+                    Document = student.Responsible.Document
+                }
+            })
+            .SingleOrDefaultAsync();
+    }
 
-        public async Task CreateAsync(Student student)
-        {
-            _context.Students.Add(student);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<IEnumerable<GetAllStudentsDto>> GetAllAsync()
-        {
-            return await _context.Students
-                .Select(student => new GetAllStudentsDto { Id = student.Id, Name = student.Name })
-                .ToListAsync();
-        }
-
-        public async Task<GetOneStudentDto?> GetOneAsync(Guid id)
-        {
-            return await _context.Students
-                .Where(student => student.Id == id)
-                .Select(student => new GetOneStudentDto { Name = student.Name })
-                .SingleOrDefaultAsync();
-        }
+    public async Task<Student?> GetOneModelAsync(Guid id)
+    {
+        return await _context.Students
+            .Where(student => student.Id == id)
+            .Include(nameof(Document))
+            .Include(nameof(Responsible))
+            .Include($"{nameof(Responsible)}.{nameof(Document)}")
+            .SingleOrDefaultAsync();
     }
 }

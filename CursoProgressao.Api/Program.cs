@@ -1,9 +1,12 @@
-using Api.Data.Contexts;
-using Api.Data.UnitOfWork;
-using Api.Filters;
-using Api.Middlewares;
-using Api.Repositories.Students;
-using Api.Services.Students;
+using CursoProgressao.Api.Data.Contexts;
+using CursoProgressao.Api.Data.UnitOfWork;
+using CursoProgressao.Api.Filters;
+using CursoProgressao.Api.Middlewares;
+using CursoProgressao.Api.Repositories.Students;
+using CursoProgressao.Api.Services.ResponsibleDocuments;
+using CursoProgressao.Api.Services.Responsibles;
+using CursoProgressao.Api.Services.StudentDocuments;
+using CursoProgressao.Api.Services.Students;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +19,9 @@ builder.Services.AddTransient<ExceptionHandlerMiddleware>();
 builder.Services.AddTransient<IUnitOfWork, SchoolUnitOfWork>();
 builder.Services.AddTransient<IStudentsRepository, StudentsRepository>();
 builder.Services.AddTransient<IStudentsService, StudentsService>();
+builder.Services.AddTransient<IStudentDocumentsService, StudentDocumentsService>();
+builder.Services.AddTransient<IResponsiblesService, ResponsiblesServices>();
+builder.Services.AddTransient<IResponsibleDocumentsService, ResponsibleDocumentsService>();
 
 builder.Services.AddControllers(options =>
     options.Filters.Add(new ModelExceptionHandler())

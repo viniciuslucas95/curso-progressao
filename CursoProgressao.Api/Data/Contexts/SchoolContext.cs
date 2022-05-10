@@ -1,12 +1,16 @@
-﻿using Api.Models;
+﻿using CursoProgressao.Api.Models;
+using CursoProgressao.Api.Models.Documents;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Data.Contexts
+namespace CursoProgressao.Api.Data.Contexts
 {
     public class SchoolContext : DbContext
     {
         public DbSet<Student> Students => Set<Student>();
+        public DbSet<StudentDocument> StudentDocuments => Set<StudentDocument>();
+        public DbSet<Responsible> Responsibles => Set<Responsible>();
+        public DbSet<ResponsibleDocument> ResponsibleDocuments => Set<ResponsibleDocument>();
 
-        public SchoolContext(DbContextOptions<SchoolContext> options, IConfiguration configuration) : base(options) { }
+        public SchoolContext(DbContextOptions<SchoolContext> options) : base(options) { }
     }
 }

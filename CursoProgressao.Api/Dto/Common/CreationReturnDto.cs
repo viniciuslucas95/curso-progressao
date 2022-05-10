@@ -1,4 +1,4 @@
-﻿namespace Api.Dto.Common
+﻿namespace CursoProgressao.Api.Dto.Common
 {
     public class CreationReturnDto
     {

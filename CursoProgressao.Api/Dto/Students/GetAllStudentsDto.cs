@@ -1,4 +1,4 @@
-﻿namespace Api.Dto.Students
+﻿namespace CursoProgressao.Api.Dto.Students
 {
     public class GetAllStudentsDto : GetOneStudentDto
     {

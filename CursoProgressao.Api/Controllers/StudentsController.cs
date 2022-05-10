@@ -1,96 +1,103 @@
-﻿using Api.Data.UnitOfWork;
-using Api.Dto.Common;
-using Api.Dto.Students;
-using Api.Services.Students;
+﻿using CursoProgressao.Api.Data.UnitOfWork;
+using CursoProgressao.Api.Dto.Common;
+using CursoProgressao.Api.Dto.Documents;
+using CursoProgressao.Api.Dto.Responsibles;
+using CursoProgressao.Api.Dto.Students;
+using CursoProgressao.Api.Models;
+using CursoProgressao.Api.Services.ResponsibleDocuments;
+using CursoProgressao.Api.Services.Responsibles;
+using CursoProgressao.Api.Services.StudentDocuments;
+using CursoProgressao.Api.Services.Students;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers
+namespace CursoProgressao.Api.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class StudentsController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class StudentsController : ControllerBase
+    private readonly IStudentsService _studentsService;
+    private readonly IStudentDocumentsService _studentDocumentsService;
+    private readonly IResponsiblesService _responsibleService;
+    private readonly IResponsibleDocumentsService _responsibleDocumentsService;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public StudentsController(IStudentsService studentService,
+        IStudentDocumentsService studentDocumentsService,
+        IResponsiblesService responsibleService,
+        IResponsibleDocumentsService responsibleDocumentsService,
+        IUnitOfWork unitOfWork)
     {
-        private readonly IStudentsService _service;
-        private readonly IUnitOfWork _unitOfWork;
+        _studentsService = studentService;
+        _studentDocumentsService = studentDocumentsService;
+        _responsibleService = responsibleService;
+        _responsibleDocumentsService = responsibleDocumentsService;
+        _unitOfWork = unitOfWork;
+    }
 
-        public StudentsController(IStudentsService service, IUnitOfWork unitOfWork)
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> PatchStudentAsync(Guid id, UpdateStudentDto dto)
+    {
+        Student student = await _studentsService.UpdateAsync(id, dto);
+
+        ModifyStudentChildren(student, dto.Document, dto.Responsible);
+
+        await _unitOfWork.CommitAsync();
+
+        return NoContent();
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<CreationReturnDto>> PostStudentAsync(CreateStudentDto dto)
+    {
+        Student student = _studentsService.Create(dto);
+
+        ModifyStudentChildren(student, dto.Document, dto.Responsible);
+
+        await _unitOfWork.CommitAsync();
+
+        return new CreationReturnDto { Id = student.Id };
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<GetAllStudentsDto>>> GetAllStudentsAsync()
+    {
+        IEnumerable<GetAllStudentsDto> results = await _studentsService.GetAllAsync();
+
+        return Ok(results);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<GetOneStudentDto>> GetOneStudentAsync(Guid id)
+    {
+        GetOneStudentDto result = await _studentsService.GetOneAsync(id);
+
+        return Ok(result);
+    }
+
+    private void ModifyStudentChildren(
+        Student student,
+        ModifyDocumentDto? documentDto,
+        ModifyResponsibleDto? responsibleDto)
+    {
+        if (documentDto is not null)
+            _studentDocumentsService.Update(student, documentDto);
+        if (responsibleDto is not null)
         {
-            _service = service;
-            _unitOfWork = unitOfWork;
+            _responsibleService.Update(student, responsibleDto);
+
+            if (responsibleDto.Document is not null)
+                _responsibleDocumentsService.Update(student, responsibleDto.Document);
         }
+    }
 
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutStudent(Guid id, Student student)
-        //{
-        //    if (id != student.Id)
-        //    {
-        //        return BadRequest();
-        //    }
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteStudent(Guid id)
+    {
+        await _studentsService.DeleteAsync(id);
 
-        //    _context.Entry(student).State = EntityState.Modified;
+        await _unitOfWork.CommitAsync();
 
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!StudentExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-
-        //    return NoContent();
-        //}
-
-        [HttpPost]
-        public async Task<ActionResult<CreationReturnDto>> PostStudentAsync(CreateStudentDto dto)
-        {
-            Guid id = await _service.CreateAsync(dto);
-            await _unitOfWork.CommitAsync();
-
-            return new CreationReturnDto { Id = id };
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetAllStudentsDto>>> GetAllStudentsAsync()
-        {
-            IEnumerable<GetAllStudentsDto> results = await _service.GetAllAsync();
-
-            return Ok(results);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<GetOneStudentDto>> GetOneStudentAsync(Guid id)
-        {
-            GetOneStudentDto result = await _service.GetOneAsync(id);
-
-            return Ok(result);
-        }
-
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteStudent(Guid id)
-        //{
-        //    var student = await _context.Students.FindAsync(id);
-        //    if (student == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    _context.Students.Remove(student);
-        //    await _context.SaveChangesAsync();
-
-        //    return NoContent();
-        //}
-
-        //private bool StudentExists(Guid id)
-        //{
-        //    return _context.Students.Any(e => e.Id == id);
-        //}
+        return NoContent();
     }
 }

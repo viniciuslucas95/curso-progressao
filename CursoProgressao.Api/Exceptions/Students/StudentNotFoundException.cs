@@ -1,6 +1,6 @@
-﻿using Api.Exceptions.Base;
+﻿using CursoProgressao.Api.Exceptions.Base;
 
-namespace Api.Exceptions.Students
+namespace CursoProgressao.Api.Exceptions.Students
 {
     public class StudentNotFoundException : NotFoundException
     {

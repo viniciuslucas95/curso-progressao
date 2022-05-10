@@ -1,8 +1,8 @@
-﻿using Api.Dto.Common;
+﻿using CursoProgressao.Api.Dto.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Api.Filters
+namespace CursoProgressao.Api.Filters
 {
     public class ModelExceptionHandler : ActionFilterAttribute
     {

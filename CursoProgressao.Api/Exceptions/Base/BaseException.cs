@@ -1,4 +1,4 @@
-﻿namespace Api.Exceptions.Base
+﻿namespace CursoProgressao.Api.Exceptions.Base
 {
     public abstract class BaseException : Exception
     {

@@ -1,4 +1,4 @@
-﻿namespace Api.Data.UnitOfWork
+﻿namespace CursoProgressao.Api.Data.UnitOfWork
 {
     public interface IUnitOfWork
     {

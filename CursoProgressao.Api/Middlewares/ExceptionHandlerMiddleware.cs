@@ -1,9 +1,9 @@
-﻿using Api.Dto.Common;
-using Api.Exceptions.Base;
+﻿using CursoProgressao.Api.Dto.Common;
+using CursoProgressao.Api.Exceptions.Base;
 using System.Net;
 using System.Text.Json;
 
-namespace Api.Middlewares
+namespace CursoProgressao.Api.Middlewares
 {
     public class ExceptionHandlerMiddleware : IMiddleware
     {

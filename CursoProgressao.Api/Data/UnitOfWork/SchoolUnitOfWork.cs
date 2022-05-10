@@ -1,6 +1,6 @@
-﻿using Api.Data.Contexts;
+﻿using CursoProgressao.Api.Data.Contexts;
 
-namespace Api.Data.UnitOfWork
+namespace CursoProgressao.Api.Data.UnitOfWork
 {
     public class SchoolUnitOfWork : IUnitOfWork
     {

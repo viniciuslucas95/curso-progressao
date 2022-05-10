@@ -1,11 +1,13 @@
-﻿using Api.Dto.Students;
+﻿using CursoProgressao.Api.Dto.Students;
+using CursoProgressao.Api.Models;
 
-namespace Api.Services.Students
+namespace CursoProgressao.Api.Services.Students;
+
+public interface IStudentsService
 {
-    public interface IStudentsService
-    {
-        Task<Guid> CreateAsync(CreateStudentDto dto);
-        Task<IEnumerable<GetAllStudentsDto>> GetAllAsync();
-        Task<GetOneStudentDto> GetOneAsync(Guid id);
-    }
+    Student Create(CreateStudentDto dto);
+    Task DeleteAsync(Guid id);
+    Task<Student> UpdateAsync(Guid id, UpdateStudentDto dto);
+    Task<IEnumerable<GetAllStudentsDto>> GetAllAsync();
+    Task<GetOneStudentDto> GetOneAsync(Guid id);
 }

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Api.Exceptions.Base
+namespace CursoProgressao.Api.Exceptions.Base
 {
     public class BadRequestException : BaseException
     {
