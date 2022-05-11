@@ -1,4 +1,4 @@
-﻿using CursoProgressao.Api.Dto.Common;
+﻿using CursoProgressao.Api.Dto.Errors;
 using CursoProgressao.Api.Exceptions.Base;
 using System.Net;
 using System.Text.Json;
@@ -25,14 +25,18 @@ namespace CursoProgressao.Api.Middlewares
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 context.Response.ContentType = "application/problem+json";
 
-                await context.Response.WriteAsync(CreateError(new InternalServerErrorException(ex.Message)));
+                await context.Response.WriteAsync(CreateError(new InternalServerErrorException("InternalServerError", ex.Message)));
             }
         }
 
-        private string CreateError(BaseException ex)
+        private static string CreateError(BaseException ex)
         {
-            ErrorDto error = new();
-            error.Errors.Add(ex.Message);
+            ErrorDto<ErrorItemDto> error = new();
+            error.Errors.Add(new()
+            {
+                Name = ex.Name,
+                Message = ex.Message
+            });
 
             return JsonSerializer.Serialize(error);
         }

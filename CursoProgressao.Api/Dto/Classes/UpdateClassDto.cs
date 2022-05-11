@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CursoProgressao.Api.Attributes;
 
 namespace CursoProgressao.Api.Dto.Classes;
 
 public class UpdateClassDto
 {
-    [MinLength(2, ErrorMessage = "Class name must have at least 2 characters")]
+    [CustomMinLengthAttribute(2)]
     public string? Name { get; set; }
 }

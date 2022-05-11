@@ -1,13 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CursoProgressao.Api.Attributes;
 
 namespace CursoProgressao.Api.Dto.Contacts;
 
 public class ModifyContactDto
 {
-    [EmailAddress(ErrorMessage = "Wrong email format")]
+    [CustomEmail]
     public string? Email { get; set; }
-    [RegularExpression("^[(][0-9]{2}[)] [0-9]{4}-[0-9]{4}$", ErrorMessage = "Landline format must be (XX) XXXX-XXX")]
+    [CustomRegex("^[(][0-9]{2}[)] [0-9]{4}-[0-9]{4}$", "(XX) XXXX-XXXX")]
     public string? Landline { get; set; }
-    [RegularExpression("^[(][0-9]{2}[)] [0-9]{5}-[0-9]{4}$", ErrorMessage = "Cell phone format must be (XX) XXXXX-XXX")]
+    [CustomRegex("^[(][0-9]{2}[)] [0-9]{5}-[0-9]{4}$", "(XX) XXXXX-XXXX")]
     public string? CellPhone { get; set; }
 }

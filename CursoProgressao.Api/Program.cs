@@ -32,7 +32,7 @@ builder.Services.AddTransient<IContactsService, ContactsService>();
 builder.Services.AddTransient<IResidencesService, ResidencesService>();
 
 builder.Services.AddControllers(options =>
-    options.Filters.Add(new ModelExceptionHandler())
+    options.Filters.Add(new ModelExceptionFilter())
 )
     .ConfigureApiBehaviorOptions(options => options.SuppressModelStateInvalidFilter = true
 );

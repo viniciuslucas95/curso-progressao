@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace CursoProgressao.Api.Utils;
 
@@ -19,5 +20,19 @@ public static class StringExtention
         string firstLetter = match.Captures[0].Value;
 
         return Regex.Replace(value, pattern, firstLetter.ToUpper());
+    }
+
+    public static string ToSentence(this string value)
+    {
+        string pattern = "[A-Z][a-z]*";
+        MatchCollection matches = Regex.Matches(value, pattern);
+        StringBuilder stringBuilder = new(matches[0].Value);
+
+        for (int i = 1; i < matches.Count; i++)
+        {
+            stringBuilder.Append($" {matches[i].Value.ToLower()}");
+        }
+
+        return stringBuilder.ToString();
     }
 }

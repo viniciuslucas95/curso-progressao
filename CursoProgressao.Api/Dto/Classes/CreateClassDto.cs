@@ -1,10 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CursoProgressao.Api.Attributes;
 
 namespace CursoProgressao.Api.Dto.Classes;
 
 public class CreateClassDto
 {
-    [Required(ErrorMessage = "Class name cannot be empty or null")]
-    [MinLength(2, ErrorMessage = "Class name must have at least 2 characters")]
+    [CustomRequired]
     public string Name { get; set; } = null!;
 }

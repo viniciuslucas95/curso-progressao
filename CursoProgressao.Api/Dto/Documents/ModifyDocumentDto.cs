@@ -1,11 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CursoProgressao.Api.Attributes;
 
 namespace CursoProgressao.Api.Dto.Documents;
 
 public class ModifyDocumentDto
 {
-    [RegularExpression("^[0-9]{2}.[0-9]{3}.[0-9]{3}-[0-9]{1}$", ErrorMessage = "RG format must be XX.XXX.XXX-X")]
+    [CustomRegex("^[0-9]{2}.[0-9]{3}.[0-9]{3}-[0-9]{1}$", "XX.XXX.XXX-X")]
     public string? Rg { get; set; }
-    [RegularExpression("^[0-9]{3}.[0-9]{3}.[0-9]{3}-[0-9]{2}$", ErrorMessage = "CPF format must be XXX.XXX.XXX-XX")]
+    [CustomRegex("^[0-9]{3}.[0-9]{3}.[0-9]{3}-[0-9]{2}$", "XXX.XXX.XXX-XX")]
     public string? Cpf { get; set; }
 }
