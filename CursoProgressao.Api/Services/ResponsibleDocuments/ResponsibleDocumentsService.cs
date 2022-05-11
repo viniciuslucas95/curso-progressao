@@ -7,7 +7,9 @@ public class ResponsibleDocumentsService : IResponsibleDocumentsService
 {
     public void Update(Student student, ModifyDocumentDto dto)
     {
-        student.Responsible.Document.Rg = dto.Rg ?? student.Responsible.Document.Rg;
-        student.Responsible.Document.Cpf = dto.Cpf ?? student.Responsible.Document.Cpf;
+        if (dto.Rg is not null)
+            student.Responsible.Document.Rg = dto.Rg;
+        if (dto.Cpf is not null)
+            student.Responsible.Document.Cpf = dto.Cpf;
     }
 }

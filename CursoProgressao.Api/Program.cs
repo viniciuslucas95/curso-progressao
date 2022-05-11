@@ -2,7 +2,9 @@ using CursoProgressao.Api.Data.Contexts;
 using CursoProgressao.Api.Data.UnitOfWork;
 using CursoProgressao.Api.Filters;
 using CursoProgressao.Api.Middlewares;
+using CursoProgressao.Api.Repositories.Classes;
 using CursoProgressao.Api.Repositories.Students;
+using CursoProgressao.Api.Services.Classes;
 using CursoProgressao.Api.Services.Contacts;
 using CursoProgressao.Api.Services.Residences;
 using CursoProgressao.Api.Services.ResponsibleDocuments;
@@ -18,8 +20,10 @@ builder.Services.AddDbContext<SchoolContext>(options =>
 );
 
 builder.Services.AddTransient<ExceptionHandlerMiddleware>();
-builder.Services.AddTransient<IUnitOfWork, SchoolUnitOfWork>();
+builder.Services.AddTransient<SchoolUnitOfWork>();
 builder.Services.AddTransient<IStudentsRepository, StudentsRepository>();
+builder.Services.AddTransient<IClassesRepository, ClassesRepository>();
+builder.Services.AddTransient<IClassesService, ClassesService>();
 builder.Services.AddTransient<IStudentsService, StudentsService>();
 builder.Services.AddTransient<IStudentDocumentsService, StudentDocumentsService>();
 builder.Services.AddTransient<IResponsiblesService, ResponsiblesServices>();

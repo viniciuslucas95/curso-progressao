@@ -30,12 +30,8 @@ public class StudentsRepository : IStudentsRepository
                 Contact = student.Contact,
                 Note = student.Note,
                 Residence = student.Residence,
-                Responsible = new GetOneResponsibleDto
-                {
-                    FirstName = student.Responsible.FirstName,
-                    LastName = student.Responsible.LastName,
-                    Document = student.Responsible.Document
-                }
+                Class = GetClassName(student.Class),
+                Responsible = GetResponsible(student.Responsible)
             })
             .ToListAsync();
     }
@@ -52,13 +48,9 @@ public class StudentsRepository : IStudentsRepository
                 Document = student.Document,
                 Contact = student.Contact,
                 Residence = student.Residence,
+                Class = GetClassName(student.Class),
                 Note = student.Note,
-                Responsible = new GetOneResponsibleDto
-                {
-                    FirstName = student.Responsible.FirstName,
-                    LastName = student.Responsible.LastName,
-                    Document = student.Responsible.Document
-                }
+                Responsible = GetResponsible(student.Responsible)
             })
             .SingleOrDefaultAsync();
     }
@@ -71,7 +63,19 @@ public class StudentsRepository : IStudentsRepository
             .Include(nameof(Responsible))
             .Include(nameof(Contact))
             .Include(nameof(Residence))
+            .Include(nameof(Class))
             .Include($"{nameof(Responsible)}.{nameof(Document)}")
             .SingleOrDefaultAsync();
     }
+
+    private static string? GetClassName(Class? classObj)
+        => classObj is not null ? classObj.Name : null;
+
+    private static GetOneResponsibleDto GetResponsible(Responsible responsible)
+        => new()
+        {
+            FirstName = responsible.FirstName,
+            LastName = responsible.LastName,
+            Document = responsible.Document
+        };
 }

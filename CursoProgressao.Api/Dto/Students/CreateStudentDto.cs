@@ -15,6 +15,7 @@ public class CreateStudentDto
     [MinLength(2, ErrorMessage = "Last name must have at least 2 characters")]
     public string LastName { get; set; } = null!;
     public string? Note { get; set; }
+    public Guid? ClassId { get; set; }
     public ModifyDocumentDto? Document { get; set; }
     public ModifyResponsibleDto? Responsible { get; set; }
     public ModifyContactDto? Contact { get; set; }

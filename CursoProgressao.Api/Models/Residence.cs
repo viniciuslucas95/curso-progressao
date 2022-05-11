@@ -25,8 +25,8 @@ public class Residence : Model
     public Guid StudentId { get; private init; }
     public Student Student { get; private init; } = null!;
 
-    private string? _zipCode;
-    private string? _address;
+    private string? _zipCode = "";
+    private string? _address = "";
 
     public Residence(Guid studentId)
     {

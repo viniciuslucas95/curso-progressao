@@ -7,7 +7,9 @@ public class StudentDocumentsService : IStudentDocumentsService
 {
     public void Update(Student student, ModifyDocumentDto dto)
     {
-        student.Document.Rg = dto.Rg ?? student.Document.Rg;
-        student.Document.Cpf = dto.Cpf ?? student.Document.Cpf;
+        if (dto.Rg is not null)
+            student.Document.Rg = dto.Rg;
+        if (dto.Cpf is not null)
+            student.Document.Cpf = dto.Cpf;
     }
 }

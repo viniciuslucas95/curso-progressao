@@ -7,7 +7,9 @@ public class ResponsiblesServices : IResponsiblesService
 {
     public void Update(Student student, ModifyResponsibleDto dto)
     {
-        student.Responsible.FirstName = dto.FirstName ?? student.Responsible.FirstName;
-        student.Responsible.LastName = dto.LastName ?? student.Responsible.LastName;
+        if (dto.FirstName is not null)
+            student.Responsible.FirstName = dto.FirstName;
+        if (dto.LastName is not null)
+            student.Responsible.LastName = dto.LastName;
     }
 }

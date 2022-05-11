@@ -1,17 +1,24 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CursoProgressao.Api.Models;
+﻿namespace CursoProgressao.Api.Models;
 
 public class Class : Model
 {
-    [Required(ErrorMessage = "Class name cannot be empty or null")]
-    [MinLength(2, ErrorMessage = "Class name must have at least 2 characters")]
-    public string Name { get; private set; }
-    public List<Student> Students { get; private set; }
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            _name = value;
+            UpdateModificationDate();
+        }
+    }
+    public List<Student> Students { get; set; }
+
+    private string _name;
+    //private readonly List<Student> _students;
 
     public Class(string name)
     {
         Students = new List<Student>();
-        Name = name;
+        _name = name;
     }
 }

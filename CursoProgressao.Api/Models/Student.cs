@@ -41,6 +41,16 @@ public class Student : Model
             UpdateModificationDate();
         }
     }
+    public Guid? ClassId
+    {
+        get => _classId;
+        set
+        {
+            _classId = value;
+            UpdateModificationDate();
+        }
+    }
+    public Class? Class { get; private init; }
     public StudentDocument Document { get; private init; }
     public Responsible Responsible { get; private init; }
     public Contact Contact { get; private init; }
@@ -48,14 +58,15 @@ public class Student : Model
 
     private string _firstName;
     private string _lastName;
-    private bool _isActive;
-    private string? _note;
+    private bool _isActive = true;
+    private string? _note = "";
+    private Guid? _classId;
 
-    public Student(string firstName, string lastName)
+    public Student(string firstName, string lastName, Guid? classId = null)
     {
         _firstName = firstName;
         _lastName = lastName;
-        _isActive = true;
+        _classId = classId;
         Document = new(Id);
         Responsible = new(Id);
         Contact = new(Id);

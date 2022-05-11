@@ -26,7 +26,7 @@ public class StudentsController : ControllerBase
     private readonly IResponsibleDocumentsService _responsibleDocumentsService;
     private readonly IContactsService _contactsService;
     private readonly IResidencesService _residencesService;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly SchoolUnitOfWork _unitOfWork;
 
     public StudentsController(IStudentsService studentsService,
         IStudentDocumentsService studentDocumentsService,
@@ -34,7 +34,7 @@ public class StudentsController : ControllerBase
         IResponsibleDocumentsService responsibleDocumentsService,
         IContactsService contactsService,
         IResidencesService residencesService,
-        IUnitOfWork unitOfWork)
+        SchoolUnitOfWork unitOfWork)
     {
         _studentsService = studentsService;
         _studentDocumentsService = studentDocumentsService;
@@ -43,6 +43,18 @@ public class StudentsController : ControllerBase
         _contactsService = contactsService;
         _residencesService = residencesService;
         _unitOfWork = unitOfWork;
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<CreationReturnDto>> PostStudentAsync(CreateStudentDto dto)
+    {
+        Student student = _studentsService.Create(dto);
+
+        ModifyStudentChildren(student, dto.Document, dto.Residence, dto.Contact, dto.Responsible);
+
+        await _unitOfWork.CommitAsync();
+
+        return new CreationReturnDto { Id = student.Id };
     }
 
     [HttpPatch("{id}")]
@@ -57,16 +69,14 @@ public class StudentsController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost]
-    public async Task<ActionResult<CreationReturnDto>> PostStudentAsync(CreateStudentDto dto)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteStudentAsync(Guid id)
     {
-        Student student = _studentsService.Create(dto);
-
-        ModifyStudentChildren(student, dto.Document, dto.Residence, dto.Contact, dto.Responsible);
+        await _studentsService.DeleteAsync(id);
 
         await _unitOfWork.CommitAsync();
 
-        return new CreationReturnDto { Id = student.Id };
+        return NoContent();
     }
 
     [HttpGet]
@@ -108,15 +118,5 @@ public class StudentsController : ControllerBase
             if (responsibleDto.Document is not null)
                 _responsibleDocumentsService.Update(student, responsibleDto.Document);
         }
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteStudent(Guid id)
-    {
-        await _studentsService.DeleteAsync(id);
-
-        await _unitOfWork.CommitAsync();
-
-        return NoContent();
     }
 }

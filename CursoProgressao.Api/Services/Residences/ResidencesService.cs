@@ -7,7 +7,9 @@ public class ResidencesService : IResidencesService
 {
     public void Update(Student student, ModifyResidenceDto dto)
     {
-        student.Residence.ZipCode = dto.ZipCode ?? student.Residence.ZipCode;
-        student.Residence.Address = dto.Address ?? student.Residence.Address;
+        if (dto.ZipCode is not null)
+            student.Residence.ZipCode = dto.ZipCode;
+        if (dto.Address is not null)
+            student.Residence.Address = dto.Address;
     }
 }

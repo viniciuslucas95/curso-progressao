@@ -15,7 +15,7 @@ public abstract class Model
         UpdatedAt = UpdatedAt.GetCurrentUtcTime();
     }
 
-    protected void UpdateModificationDate()
+    public void UpdateModificationDate()
     {
         UpdatedAt = UpdatedAt.GetCurrentUtcTime();
     }

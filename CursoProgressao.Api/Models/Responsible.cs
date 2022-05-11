@@ -26,8 +26,8 @@ public class Responsible : Model
     public Student Student { get; private init; } = null!;
     public ResponsibleDocument Document { get; private init; }
 
-    private string? _firstName;
-    private string? _lastName;
+    private string? _firstName = "";
+    private string? _lastName = "";
 
     public Responsible(Guid studentId)
     {

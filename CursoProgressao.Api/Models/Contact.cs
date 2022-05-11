@@ -32,9 +32,9 @@ public class Contact : Model
         }
     }
 
-    private string? _email;
-    private string? _landline;
-    private string? _cellPhone;
+    private string? _email = "";
+    private string? _landline = "";
+    private string? _cellPhone = "";
 
     public Guid StudentId { get; private init; }
     public Student Student { get; private init; } = null!;

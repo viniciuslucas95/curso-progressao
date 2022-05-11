@@ -23,8 +23,8 @@ public abstract class Document : Model
         }
     }
 
-    private string? _rg;
-    private string? _cpf;
+    private string? _rg = "";
+    private string? _cpf = "";
 
     public static implicit operator GetOneDocumentDto(Document document)
         => new()
