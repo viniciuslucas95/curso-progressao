@@ -1,4 +1,5 @@
-﻿using CursoProgressao.Api.Models.Documents;
+﻿using CursoProgressao.Api.Dto.Responsibles;
+using CursoProgressao.Api.Models.Documents;
 
 namespace CursoProgressao.Api.Models;
 
@@ -34,4 +35,12 @@ public class Responsible : Model
         StudentId = studentId;
         Document = new(Id);
     }
+
+    public static implicit operator GetOneResponsibleDto(Responsible responsible)
+        => new()
+        {
+            FirstName = responsible.FirstName,
+            LastName = responsible.LastName,
+            Document = responsible.Document
+        };
 }

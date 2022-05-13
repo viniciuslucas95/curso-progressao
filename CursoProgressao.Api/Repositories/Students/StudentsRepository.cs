@@ -1,5 +1,4 @@
 ﻿using CursoProgressao.Api.Data.Contexts;
-using CursoProgressao.Api.Dto.Responsibles;
 using CursoProgressao.Api.Dto.Students;
 using CursoProgressao.Api.Models;
 using CursoProgressao.Api.Models.Documents;
@@ -21,6 +20,7 @@ public class StudentsRepository : IStudentsRepository
     {
         return await _context.Students
             .AsNoTracking()
+            .Include($"{nameof(Responsible)}.{nameof(Document)}")
             .Select(student => new GetAllStudentsDto
             {
                 Id = student.Id,
@@ -30,8 +30,8 @@ public class StudentsRepository : IStudentsRepository
                 Contact = student.Contact,
                 Note = student.Note,
                 Residence = student.Residence,
-                Class = GetClassName(student.Class),
-                Responsible = GetResponsible(student.Responsible)
+                Class = student.Class,
+                Responsible = student.Responsible
             })
             .ToListAsync();
     }
@@ -41,6 +41,7 @@ public class StudentsRepository : IStudentsRepository
         return await _context.Students
             .AsNoTracking()
             .Where(student => student.Id == id)
+            .Include($"{nameof(Responsible)}.{nameof(Document)}")
             .Select(student => new GetOneStudentDto
             {
                 FirstName = student.FirstName,
@@ -48,34 +49,22 @@ public class StudentsRepository : IStudentsRepository
                 Document = student.Document,
                 Contact = student.Contact,
                 Residence = student.Residence,
-                Class = GetClassName(student.Class),
+                Class = student.Class,
                 Note = student.Note,
-                Responsible = GetResponsible(student.Responsible)
+                Responsible = student.Responsible
             })
-            .SingleOrDefaultAsync();
+            .FirstOrDefaultAsync();
     }
 
     public async Task<Student?> GetOneModelAsync(Guid id)
     {
         return await _context.Students
-            .Where(student => student.Id == id)
             .Include(nameof(Document))
             .Include(nameof(Responsible))
             .Include(nameof(Contact))
             .Include(nameof(Residence))
             .Include(nameof(Class))
             .Include($"{nameof(Responsible)}.{nameof(Document)}")
-            .SingleOrDefaultAsync();
+            .FirstOrDefaultAsync(student => student.Id == id);
     }
-
-    private static string? GetClassName(Class? classObj)
-        => classObj is not null ? classObj.Name : null;
-
-    private static GetOneResponsibleDto GetResponsible(Responsible responsible)
-        => new()
-        {
-            FirstName = responsible.FirstName,
-            LastName = responsible.LastName,
-            Document = responsible.Document
-        };
 }

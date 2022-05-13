@@ -4,5 +4,5 @@ namespace CursoProgressao.Api.Exceptions.Common;
 
 public class InvalidPropertyException : BadRequestException
 {
-    public InvalidPropertyException() : base("InvalidProperty") { }
+    public InvalidPropertyException(string message = "") : base("InvalidProperty", message) { }
 }

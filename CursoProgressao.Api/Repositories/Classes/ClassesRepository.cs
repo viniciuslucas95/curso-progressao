@@ -1,6 +1,8 @@
 ﻿using CursoProgressao.Api.Data.Contexts;
 using CursoProgressao.Api.Dto.Classes;
+using CursoProgressao.Api.Dto.Students;
 using CursoProgressao.Api.Models;
+using CursoProgressao.Api.Models.Documents;
 using Microsoft.EntityFrameworkCore;
 
 namespace CursoProgressao.Api.Repositories.Classes;
@@ -19,11 +21,16 @@ public class ClassesRepository : IClassesRepository
     {
         return await _context.Classes
             .AsNoTracking()
+            .Include($"Students.{nameof(Document)}")
+            .Include($"Students.{nameof(Residence)}")
+            .Include($"Students.{nameof(Contact)}")
+            .Include($"Students.{nameof(Responsible)}")
+            .Include($"Students.{nameof(Responsible)}.{nameof(Document)}")
             .Select(classObj => new GetAllClassesDto
             {
                 Id = classObj.Id,
                 Name = classObj.Name,
-                Students = classObj.Students
+                Students = GetStudents(classObj.Students)
             })
             .ToListAsync();
     }
@@ -33,10 +40,15 @@ public class ClassesRepository : IClassesRepository
         return await _context.Classes
             .AsNoTracking()
             .Where(classObj => classObj.Id == id)
+            .Include($"Students.{nameof(Document)}")
+            .Include($"Students.{nameof(Residence)}")
+            .Include($"Students.{nameof(Contact)}")
+            .Include($"Students.{nameof(Responsible)}")
+            .Include($"Students.{nameof(Responsible)}.{nameof(Document)}")
             .Select(classObj => new GetOneClassDto
             {
                 Name = classObj.Name,
-                Students = classObj.Students
+                Students = GetStudents(classObj.Students)
             })
             .FirstOrDefaultAsync();
     }
@@ -44,8 +56,21 @@ public class ClassesRepository : IClassesRepository
     public async Task<Class?> GetOneModelAsync(Guid id)
     {
         return await _context.Classes
-            .Where(classObj => classObj.Id == id)
             .Include(classObj => classObj.Students)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(classObj => classObj.Id == id);
     }
+
+    private static IEnumerable<GetAllStudentsDto> GetStudents(IReadOnlyCollection<Student> students)
+        => students
+        .Select(student => new GetAllStudentsDto
+        {
+            Id = student.Id,
+            FirstName = student.FirstName,
+            LastName = student.LastName,
+            Contact = student.Contact,
+            Document = student.Document,
+            Note = student.Note,
+            Residence = student.Residence,
+            Responsible = student.Responsible
+        });
 }

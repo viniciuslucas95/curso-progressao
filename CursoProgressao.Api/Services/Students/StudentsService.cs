@@ -1,10 +1,8 @@
 ﻿using CursoProgressao.Api.Dto.Students;
-using CursoProgressao.Api.Exceptions.Common;
 using CursoProgressao.Api.Exceptions.Students;
 using CursoProgressao.Api.Models;
 using CursoProgressao.Api.Repositories.Students;
 using CursoProgressao.Api.Utils;
-using System.Reflection;
 
 namespace CursoProgressao.Api.Services.Students;
 
@@ -19,20 +17,11 @@ public class StudentsService : IStudentsService
 
     public Student Create(CreateStudentDto dto)
     {
-        Student student = new(dto.FirstName, dto.LastName, dto.ClassId);
+        Student student = new(dto.FirstName, dto.LastName, dto.ClassId, dto.Note ?? "");
 
         _repository.Create(student);
 
         return student;
-    }
-
-    public async Task DeleteAsync(Guid id)
-    {
-        Student? student = await _repository.GetOneModelAsync(id);
-
-        if (student is null) throw new StudentNotFoundException();
-
-        _repository.Delete(student);
     }
 
     public async Task<Student> UpdateAsync(Guid id, UpdateStudentDto dto)
@@ -51,24 +40,19 @@ public class StudentsService : IStudentsService
             student.Note = dto.Note;
         if (dto.ClassId is not null)
             student.ClassId = dto.ClassId;
-
         if (dto.SetNulls is not null)
-        {
-            foreach (string propToSetNull in dto.SetNulls)
-            {
-                InvalidPropertyException error = new();
-
-                if (string.IsNullOrEmpty(propToSetNull)) throw error;
-
-                PropertyInfo? prop = student.GetType().GetProperty(propToSetNull.ToPascalCase(error));
-
-                if (prop is null) throw new InvalidPropertyException();
-
-                prop.SetValue(student, null);
-            }
-        }
+            student.SetPropsToNull(dto.SetNulls);
 
         return student;
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        Student? student = await _repository.GetOneModelAsync(id);
+
+        if (student is null) throw new StudentNotFoundException();
+
+        _repository.Delete(student);
     }
 
     public async Task<IEnumerable<GetAllStudentsDto>> GetAllAsync()

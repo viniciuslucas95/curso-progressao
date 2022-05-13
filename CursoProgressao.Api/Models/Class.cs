@@ -11,14 +11,17 @@ public class Class : Model
             UpdateModificationDate();
         }
     }
-    public List<Student> Students { get; set; }
+    public IReadOnlyCollection<Student> Students => _students;
 
+    private readonly List<Student> _students;
     private string _name;
-    //private readonly List<Student> _students;
 
     public Class(string name)
     {
-        Students = new List<Student>();
+        _students = new List<Student>();
         _name = name;
     }
+
+    public static implicit operator string?(Class? classObj)
+        => classObj is not null ? classObj.Name : null;
 }
