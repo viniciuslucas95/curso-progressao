@@ -1,0 +1,9 @@
+﻿@page "/"
+@using static CursoProgressao.WebClient.Components.TextField
+
+<PrimaryButton Text="Adicionar"/>
+<br /><br /><br />
+<TextField
+    Data="@FirstNameData"
+    OnTextChangedCallback="@OnFirstNameChanged"
+    OnFocusCallback="@OnFirstNameFocus"/>
