@@ -12,6 +12,7 @@ public class SchoolContext : DbContext
     public DbSet<Contact> Contacts => Set<Contact>();
     public DbSet<Residence> Residences => Set<Residence>();
     public DbSet<Class> Classes => Set<Class>();
+    public DbSet<Error> Errors => Set<Error>();
 
     public SchoolContext(DbContextOptions<SchoolContext> options) : base(options) { }
 }

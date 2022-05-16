@@ -1,5 +1,7 @@
-﻿using CursoProgressao.Server.Dto.Errors;
+﻿using CursoProgressao.Server.Data;
+using CursoProgressao.Server.Dto.Errors;
 using CursoProgressao.Server.Exceptions.Base;
+using CursoProgressao.Server.Models;
 using System.Net;
 using System.Text.Json;
 
@@ -7,6 +9,10 @@ namespace CursoProgressao.Server.Middlewares;
 
 public class ExceptionHandlerMiddleware : IMiddleware
 {
+    private readonly SchoolContext _context;
+
+    public ExceptionHandlerMiddleware(SchoolContext context) => _context = context;
+
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         try
@@ -24,6 +30,10 @@ public class ExceptionHandlerMiddleware : IMiddleware
         {
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Response.ContentType = "application/problem+json";
+
+            Error error = new("InternalServerError", ex.Message);
+            _context.Errors.Add(error);
+            await _context.SaveChangesAsync();
 
             await context.Response.WriteAsync(CreateError(new InternalServerErrorException("InternalServerError", ex.Message)));
         }
