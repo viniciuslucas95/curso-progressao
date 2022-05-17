@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace CursoProgressao.Server.Middlewares;
 
-public class ExceptionHandlerMiddleware : IMiddleware
+internal class ExceptionHandlerMiddleware : IMiddleware
 {
     private readonly SchoolContext _context;
 

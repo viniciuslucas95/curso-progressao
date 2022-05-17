@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace CursoProgressao.Server.Filters;
 
-public class ModelExceptionFilter : ActionFilterAttribute
+internal class ModelExceptionFilter : ActionFilterAttribute
 {
     public override void OnActionExecuting(ActionExecutingContext context)
     {
