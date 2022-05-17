@@ -8,14 +8,14 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<SchoolContext>(options =>
-    options.UseNpgsql(builder.Configuration["ConnectionString"])
-);
-
 builder.Services.AddTransient<ExceptionHandlerMiddleware>();
 builder.Services.AddTransient<IClassesService, ClassesService>();
 builder.Services.AddTransient<IResponsiblesService, ResponsiblesService>();
 builder.Services.AddTransient<IStudentsService, StudentsService>();
+
+builder.Services.AddDbContext<SchoolContext>(options =>
+    options.UseNpgsql(builder.Configuration["ConnectionString"])
+);
 
 builder.Services.AddControllers(options
     => options.Filters.Add(new ModelExceptionFilter()))
