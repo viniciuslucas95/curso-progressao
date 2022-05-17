@@ -1,7 +1,7 @@
 ﻿using CursoProgressao.Server.Data;
-using CursoProgressao.Server.Dto.Errors;
 using CursoProgressao.Server.Exceptions.Base;
 using CursoProgressao.Server.Models;
+using CursoProgressao.Shared.Dto.Errors;
 using System.Net;
 using System.Text.Json;
 
@@ -41,7 +41,7 @@ public class ExceptionHandlerMiddleware : IMiddleware
 
     private static string CreateError(BaseException ex)
     {
-        ErrorDto<ErrorItemDto> error = new();
+        ErrorDto error = new();
         error.Errors.Add(new()
         {
             Name = ex.Name,

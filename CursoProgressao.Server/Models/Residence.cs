@@ -1,4 +1,4 @@
-﻿using CursoProgressao.Server.Dto.Residences;
+﻿using CursoProgressao.Shared.Dto.Residences;
 
 namespace CursoProgressao.Server.Models;
 

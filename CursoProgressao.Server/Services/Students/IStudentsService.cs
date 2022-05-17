@@ -1,4 +1,4 @@
-﻿using CursoProgressao.Server.Dto.Students;
+﻿using CursoProgressao.Shared.Dto.Students;
 
 namespace CursoProgressao.Server.Services.Students;
 

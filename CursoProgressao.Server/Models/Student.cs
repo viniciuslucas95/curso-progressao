@@ -1,9 +1,9 @@
 ﻿using CursoProgressao.Server.Data;
-using CursoProgressao.Server.Dto.Contacts;
-using CursoProgressao.Server.Dto.Documents;
-using CursoProgressao.Server.Dto.Residences;
 using CursoProgressao.Server.Exceptions.Base;
-using CursoProgressao.Server.Utils;
+using CursoProgressao.Shared.Dto.Contacts;
+using CursoProgressao.Shared.Dto.Documents;
+using CursoProgressao.Shared.Dto.Residences;
+using CursoProgressao.Shared.Utils;
 using System.Text;
 
 namespace CursoProgressao.Server.Models;
@@ -102,7 +102,7 @@ public class Student : Model
         _note = note;
     }
 
-    public async Task SetDocumentAsync(SchoolContext context, UpdateDocumentDto dto, Func<Guid, Task<bool>> checkIdUniquenessAsync)
+    public async Task SetDocumentAsync(UpdateDocumentDto dto, Action<StudentDocument> addDocument, Func<Guid, Task<bool>> checkExistenceAsync)
     {
         if (Document is null)
         {
@@ -110,9 +110,9 @@ public class Student : Model
 
             StudentDocument document = new(Id, dto.Rg, dto.Cpf);
 
-            while (!await checkIdUniquenessAsync(document.Id)) document = new(Id, dto.Rg, dto.Cpf);
+            while (await checkExistenceAsync(document.Id)) document = new(Id, dto.Rg, dto.Cpf);
 
-            context.StudentDocuments.Add(document);
+            addDocument(document);
             Document = document;
 
             return;
@@ -124,15 +124,15 @@ public class Student : Model
         UpdateModificationDate();
     }
 
-    public async Task SetContactAsync(SchoolContext context, UpdateContactDto dto, Func<Guid, Task<bool>> checkIdUniquenessAsync)
+    public async Task SetContactAsync(UpdateContactDto dto, Action<Contact> addContact, Func<Guid, Task<bool>> checkExistenceAsync)
     {
         if (Contact is null)
         {
             Contact contact = new(Id, dto.Email, dto.Landline, dto.CellPhone);
 
-            while (!await checkIdUniquenessAsync(contact.Id)) contact = new(Id, dto.Email, dto.Landline, dto.CellPhone);
+            while (await checkExistenceAsync(contact.Id)) contact = new(Id, dto.Email, dto.Landline, dto.CellPhone);
 
-            context.Contacts.Add(contact);
+            addContact(contact);
             Contact = contact;
 
             return;
@@ -145,15 +145,15 @@ public class Student : Model
         UpdateModificationDate();
     }
 
-    public async Task SetResidenceAsync(SchoolContext context, UpdateResidenceDto dto, Func<Guid, Task<bool>> checkIdUniquenessAsync)
+    public async Task SetResidenceAsync(UpdateResidenceDto dto, Action<Residence> addResidence, Func<Guid, Task<bool>> checkExistenceAsync)
     {
         if (Residence is null)
         {
             Residence residence = new(Id, dto.ZipCode, dto.Address);
 
-            while (!await checkIdUniquenessAsync(residence.Id)) residence = new(Id, dto.ZipCode, dto.Address);
+            while (await checkExistenceAsync(residence.Id)) residence = new(Id, dto.ZipCode, dto.Address);
 
-            context.Residences.Add(residence);
+            addResidence(residence);
             Residence = residence;
 
             return;

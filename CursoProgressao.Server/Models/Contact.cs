@@ -1,4 +1,4 @@
-﻿using CursoProgressao.Server.Dto.Contacts;
+﻿using CursoProgressao.Shared.Dto.Contacts;
 
 namespace CursoProgressao.Server.Models;
 

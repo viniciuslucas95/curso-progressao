@@ -1,7 +1,7 @@
 ﻿using CursoProgressao.Server.Data;
-using CursoProgressao.Server.Dto.Classes;
-using CursoProgressao.Server.Dto.Common;
 using CursoProgressao.Server.Services.Classes;
+using CursoProgressao.Shared.Dto.Classes;
+using CursoProgressao.Shared.Dto.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CursoProgressao.Server.Controllers;

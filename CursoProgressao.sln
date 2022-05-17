@@ -14,7 +14,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CursoProgressao.Server", "C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CursoProgressao.Shared", "CursoProgressao.Shared\CursoProgressao.Shared.csproj", "{D5A674CA-389C-4DD7-A051-03394AFE8997}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CursoProgressao.Server.Test", "CursoProgressao.Server.Test\CursoProgressao.Server.Test.csproj", "{BE3AE28C-9AFB-492E-8275-F128734C9806}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CursoProgressao.Server.Test", "CursoProgressao.Server.Test\CursoProgressao.Server.Test.csproj", "{BE3AE28C-9AFB-492E-8275-F128734C9806}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CursoProgressao.Shared.Test", "CursoProgressao.Shared.Test\CursoProgressao.Shared.Test.csproj", "{34408171-E5E2-4D1E-9154-626A945F027F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +40,10 @@ Global
 		{BE3AE28C-9AFB-492E-8275-F128734C9806}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE3AE28C-9AFB-492E-8275-F128734C9806}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE3AE28C-9AFB-492E-8275-F128734C9806}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34408171-E5E2-4D1E-9154-626A945F027F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34408171-E5E2-4D1E-9154-626A945F027F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34408171-E5E2-4D1E-9154-626A945F027F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34408171-E5E2-4D1E-9154-626A945F027F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

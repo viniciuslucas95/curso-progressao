@@ -1,4 +1,4 @@
-﻿using CursoProgressao.Server.Dto.Errors;
+﻿using CursoProgressao.Shared.Dto.Errors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Text.RegularExpressions;
@@ -11,7 +11,7 @@ public class ModelExceptionFilter : ActionFilterAttribute
     {
         if (!context.ModelState.IsValid)
         {
-            ErrorDto<ErrorItemDto> result = new();
+            ErrorDto result = new();
             string pattern = "(?:!--!)";
 
             foreach (var modelStateValue in context.ModelState.Values)

@@ -1,4 +1,4 @@
-﻿using CursoProgressao.Server.Utils;
+﻿using CursoProgressao.Shared.Utils;
 
 namespace CursoProgressao.Server.Models;
 

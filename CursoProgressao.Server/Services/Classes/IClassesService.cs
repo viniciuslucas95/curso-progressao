@@ -1,4 +1,4 @@
-﻿using CursoProgressao.Server.Dto.Classes;
+﻿using CursoProgressao.Shared.Dto.Classes;
 
 namespace CursoProgressao.Server.Services.Classes;
 

@@ -1,7 +1,7 @@
-﻿using CursoProgressao.Server.Dto.Classes;
-using CursoProgressao.Server.Exceptions.Base;
+﻿using CursoProgressao.Server.Exceptions.Base;
 using CursoProgressao.Server.Test.Attributes;
 using CursoProgressao.Server.Test.Fixtures;
+using CursoProgressao.Shared.Dto.Classes;
 using Xunit;
 
 namespace CursoProgressao.Server.Test.Services;

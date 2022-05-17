@@ -1,8 +1,8 @@
 ﻿using CursoProgressao.Server.Data;
-using CursoProgressao.Server.Dto.Documents;
-using CursoProgressao.Server.Dto.Responsibles;
 using CursoProgressao.Server.Exceptions.Base;
 using CursoProgressao.Server.Models;
+using CursoProgressao.Shared.Dto.Documents;
+using CursoProgressao.Shared.Dto.Responsibles;
 using Microsoft.EntityFrameworkCore;
 
 namespace CursoProgressao.Server.Services.Responsibles;

@@ -1,4 +1,4 @@
-﻿using CursoProgressao.Server.Utils;
+﻿using CursoProgressao.Shared.Utils;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CursoProgressao.Server.Models;

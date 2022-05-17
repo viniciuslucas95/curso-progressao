@@ -1,7 +1,7 @@
 ﻿using CursoProgressao.Server.Data;
-using CursoProgressao.Server.Dto.Classes;
 using CursoProgressao.Server.Exceptions.Base;
 using CursoProgressao.Server.Models;
+using CursoProgressao.Shared.Dto.Classes;
 using Microsoft.EntityFrameworkCore;
 
 namespace CursoProgressao.Server.Services.Classes;

@@ -1,4 +1,4 @@
-﻿using CursoProgressao.Server.Dto.Responsibles;
+﻿using CursoProgressao.Shared.Dto.Responsibles;
 
 namespace CursoProgressao.Server.Services.Responsibles;
 

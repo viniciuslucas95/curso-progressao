@@ -1,10 +1,10 @@
 ﻿using CursoProgressao.Server.Data;
-using CursoProgressao.Server.Dto.Contacts;
-using CursoProgressao.Server.Dto.Documents;
-using CursoProgressao.Server.Dto.Residences;
-using CursoProgressao.Server.Dto.Students;
 using CursoProgressao.Server.Exceptions.Base;
 using CursoProgressao.Server.Models;
+using CursoProgressao.Shared.Dto.Contacts;
+using CursoProgressao.Shared.Dto.Documents;
+using CursoProgressao.Shared.Dto.Residences;
+using CursoProgressao.Shared.Dto.Students;
 using Microsoft.EntityFrameworkCore;
 
 namespace CursoProgressao.Server.Services.Students;
@@ -22,7 +22,7 @@ public class StudentsService : IStudentsService
 
         Student student = new(dto.FirstName, dto.LastName, dto.Note, dto.ResponsibleId);
 
-        while (!await CheckStudentIdUniquenessAsync(student.Id)) student = new(dto.FirstName, dto.LastName, dto.Note, dto.ResponsibleId);
+        while (await CheckStudentExistenceAsync(student.Id)) student = new(dto.FirstName, dto.LastName, dto.Note, dto.ResponsibleId);
 
         UpdateDocumentDto? document = dto.Document is not null ? new()
         {
@@ -30,7 +30,7 @@ public class StudentsService : IStudentsService
             Cpf = dto.Document.Cpf
         } : null;
 
-        await SetOptionalDataAsync(_context, student, document, dto.Contact, dto.Residence);
+        await SetOptionalDataAsync(student, document, dto.Contact, dto.Residence);
 
         _context.Students.Add(student);
 
@@ -52,7 +52,7 @@ public class StudentsService : IStudentsService
             student.ResponsibleId = dto.ResponsibleId;
         }
 
-        await SetOptionalDataAsync(_context, student, dto.Document, dto.Contact, dto.Residence);
+        await SetOptionalDataAsync(student, dto.Document, dto.Contact, dto.Residence);
 
         if (dto.RemoveList is not null) student.RemoveProps(_context, dto.RemoveList);
     }
@@ -125,7 +125,6 @@ public class StudentsService : IStudentsService
     }
 
     private async Task SetOptionalDataAsync(
-        SchoolContext context,
         Student student,
         UpdateDocumentDto? document,
         UpdateContactDto? contact,
@@ -134,39 +133,36 @@ public class StudentsService : IStudentsService
         if (document is not null)
         {
             if (document.Rg is not null)
-                if (!await CheckStudentDocumentRgUniquenessAsync(document.Rg))
+                if (await CheckDocumentRgExistenceAsync(document.Rg))
                     throw new ConflictException("NotUniqueStudentRg");
 
             if (document.Cpf is not null)
-                if (!await CheckStudentDocumentCpfUniquenessAsync(document.Cpf))
+                if (await CheckDocumentCpfExistenceAsync(document.Cpf))
                     throw new ConflictException("NotUniqueStudentCpf");
 
-            await student.SetDocumentAsync(context, document, CheckStudentDocumentIdUniquenessAsync);
+            await student.SetDocumentAsync(document, AddDocument, CheckDocumentExistenceAsync);
         }
         if (contact is not null)
         {
             if (contact.Email is not null)
-                if (!await CheckEmailUniquenessAsync(contact.Email))
+                if (await CheckEmailExistenceAsync(contact.Email))
                     throw new ConflictException("NotUniqueEmail");
 
-            await student.SetContactAsync(context, contact, CheckContactIdUniquenessAsync);
+            await student.SetContactAsync(contact, AddContact, CheckContactExistenceAsync);
         }
-        if (residence is not null) await student.SetResidenceAsync(context, residence, CheckResidenceIdUniquenessAsync);
+        if (residence is not null)
+            await student.SetResidenceAsync(residence, AddResidence, CheckResidenceExistenceAsync);
     }
 
-    private async Task<bool> CheckStudentIdUniquenessAsync(Guid id) => !await _context.Students.AnyAsync(student => student.Id == id);
-
-    private async Task<bool> CheckStudentDocumentIdUniquenessAsync(Guid id) => !await _context.StudentDocuments.AnyAsync(document => document.Id == id);
-
-    private async Task<bool> CheckContactIdUniquenessAsync(Guid id) => !await _context.Contacts.AnyAsync(contact => contact.Id == id);
-
-    private async Task<bool> CheckResidenceIdUniquenessAsync(Guid id) => !await _context.Residences.AnyAsync(residence => residence.Id == id);
-
-    private async Task<bool> CheckEmailUniquenessAsync(string email) => !await _context.Contacts.AnyAsync(contact => contact.Email == email);
-
-    private async Task<bool> CheckStudentDocumentRgUniquenessAsync(string rg) => !await _context.StudentDocuments.AnyAsync(document => document.Rg == rg);
-
-    private async Task<bool> CheckStudentDocumentCpfUniquenessAsync(string cpf) => !await _context.StudentDocuments.AnyAsync(document => document.Cpf == cpf);
-
+    private void AddDocument(StudentDocument document) => _context.StudentDocuments.Add(document);
+    private void AddContact(Contact contact) => _context.Contacts.Add(contact);
+    private void AddResidence(Residence residence) => _context.Residences.Add(residence);
+    private async Task<bool> CheckDocumentExistenceAsync(Guid id) => await _context.StudentDocuments.AnyAsync(document => document.Id == id);
+    private async Task<bool> CheckContactExistenceAsync(Guid id) => await _context.Contacts.AnyAsync(contact => contact.Id == id);
+    private async Task<bool> CheckResidenceExistenceAsync(Guid id) => await _context.Residences.AnyAsync(residence => residence.Id == id);
+    private async Task<bool> CheckStudentExistenceAsync(Guid id) => await _context.Students.AnyAsync(student => student.Id == id);
+    private async Task<bool> CheckEmailExistenceAsync(string email) => await _context.Contacts.AnyAsync(contact => contact.Email == email);
+    private async Task<bool> CheckDocumentRgExistenceAsync(string rg) => await _context.StudentDocuments.AnyAsync(document => document.Rg == rg);
+    private async Task<bool> CheckDocumentCpfExistenceAsync(string cpf) => await _context.StudentDocuments.AnyAsync(document => document.Cpf == cpf);
     private async Task<bool> CheckResponsibleExistenceAsync(Guid id) => await _context.Responsibles.AnyAsync(responsible => responsible.Id == id);
 }

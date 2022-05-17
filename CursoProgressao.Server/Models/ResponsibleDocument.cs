@@ -1,4 +1,4 @@
-﻿using CursoProgressao.Server.Dto.Documents;
+﻿using CursoProgressao.Shared.Dto.Documents;
 
 namespace CursoProgressao.Server.Models;
 
