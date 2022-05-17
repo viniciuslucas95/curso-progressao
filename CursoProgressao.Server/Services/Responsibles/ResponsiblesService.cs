@@ -91,7 +91,7 @@ public class ResponsiblesService : IResponsiblesService
             })
             .FirstOrDefaultAsync();
 
-        if (responsible is null) throw new BadRequestException("ResponsibleNotFound");
+        if (responsible is null) throw new NotFoundException("ResponsibleNotFound");
 
         return responsible;
     }
@@ -104,7 +104,7 @@ public class ResponsiblesService : IResponsiblesService
             .Include(responsible => responsible.Students)
             .FirstOrDefaultAsync();
 
-        if (responsible is null) throw new BadRequestException("ResponsibleNotFound");
+        if (responsible is null) throw new NotFoundException("ResponsibleNotFound");
 
         return responsible;
     }

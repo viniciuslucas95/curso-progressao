@@ -63,7 +63,7 @@ public class ClassesServiceTest : IClassFixture<ClassesFixture>
 
     [Fact, TestPriority(5)]
     public async Task ShouldNotGetClass()
-        => await Assert.ThrowsAsync<BadRequestException>(() => _fixture.Service.GetOneAsync(Guid.NewGuid()));
+        => await Assert.ThrowsAsync<NotFoundException>(() => _fixture.Service.GetOneAsync(Guid.NewGuid()));
 
     [Fact, TestPriority(6)]
     public async Task ShouldGetAllClasses()
@@ -91,5 +91,5 @@ public class ClassesServiceTest : IClassFixture<ClassesFixture>
 
     [Fact, TestPriority(9)]
     public async Task ShouldNotDeleteClass()
-        => await Assert.ThrowsAsync<BadRequestException>(() => _fixture.Service.DeleteAsync(Guid.NewGuid()));
+        => await Assert.ThrowsAsync<NotFoundException>(() => _fixture.Service.DeleteAsync(Guid.NewGuid()));
 }

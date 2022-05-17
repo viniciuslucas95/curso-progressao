@@ -67,7 +67,7 @@ public class ClassesService : IClassesService
             })
             .FirstOrDefaultAsync();
 
-        if (classObj is null) throw new BadRequestException("ClassNotFound");
+        if (classObj is null) throw new NotFoundException("ClassNotFound");
 
         return classObj;
     }
@@ -79,7 +79,7 @@ public class ClassesService : IClassesService
             .Include(classObj => classObj.Students)
             .FirstOrDefaultAsync();
 
-        if (classObj is null) throw new BadRequestException("ClassNotFound");
+        if (classObj is null) throw new NotFoundException("ClassNotFound");
 
         return classObj;
     }

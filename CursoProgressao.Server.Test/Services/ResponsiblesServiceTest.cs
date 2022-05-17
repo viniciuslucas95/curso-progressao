@@ -97,7 +97,7 @@ public class ResponsiblesServiceTest : IClassFixture<ResponsiblesFixture>
 
     [Fact, TestPriority(5)]
     public async Task ShouldNotGetResponsible()
-        => await Assert.ThrowsAsync<BadRequestException>(() => _fixture.Service.GetOneAsync(Guid.NewGuid()));
+        => await Assert.ThrowsAsync<NotFoundException>(() => _fixture.Service.GetOneAsync(Guid.NewGuid()));
 
     [Fact, TestPriority(6)]
     public async Task ShouldGetAllResponsibles()
@@ -125,5 +125,5 @@ public class ResponsiblesServiceTest : IClassFixture<ResponsiblesFixture>
 
     [Fact, TestPriority(9)]
     public async Task ShouldNotDeleteResponsible()
-        => await Assert.ThrowsAsync<BadRequestException>(() => _fixture.Service.DeleteAsync(Guid.NewGuid()));
+        => await Assert.ThrowsAsync<NotFoundException>(() => _fixture.Service.DeleteAsync(Guid.NewGuid()));
 }
