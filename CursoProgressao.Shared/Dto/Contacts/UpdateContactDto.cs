@@ -17,6 +17,6 @@ public class UpdateContactDto : IValidatableObject
         if (string.IsNullOrEmpty(Email) &&
             string.IsNullOrEmpty(Landline) &&
             string.IsNullOrEmpty(CellPhone))
-            yield return new ValidationResult("NoChangesSent");
+            yield return new ValidationResult("NoContactSent");
     }
 }

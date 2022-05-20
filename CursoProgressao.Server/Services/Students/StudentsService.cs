@@ -1,114 +1,226 @@
 ﻿using CursoProgressao.Server.Data;
 using CursoProgressao.Server.Exceptions.Base;
 using CursoProgressao.Server.Models;
-using CursoProgressao.Shared.Dto.Contacts;
-using CursoProgressao.Shared.Dto.Documents;
-using CursoProgressao.Shared.Dto.Residences;
+using CursoProgressao.Server.Services.Classes;
+using CursoProgressao.Server.Services.Contacts;
+using CursoProgressao.Server.Services.Contracts;
+using CursoProgressao.Server.Services.Payments;
+using CursoProgressao.Server.Services.Residences;
+using CursoProgressao.Server.Services.Responsibles;
+using CursoProgressao.Server.Services.StudentDocuments;
+using CursoProgressao.Shared.Dto.Contracts;
 using CursoProgressao.Shared.Dto.Students;
+using CursoProgressao.Shared.Utils;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 
 namespace CursoProgressao.Server.Services.Students;
 
 public class StudentsService : IStudentsService
 {
     private readonly SchoolContext _context;
+    private readonly IContractsService _contractsService;
+    private readonly IClassesService _classesService;
+    private readonly IResponsiblesService _responsiblesService;
+    private readonly IPaymentsService _paymentsService;
+    private readonly IContactsService _contactsService;
+    private readonly IResidencesService _residencesService;
+    private readonly IStudentDocumentsService _studentDocumentsService;
+    private readonly NotFoundException _notFoundException = new("StudentNotFound");
 
-    public StudentsService(SchoolContext context) => _context = context;
+    public StudentsService(
+        SchoolContext context,
+        IContractsService contractsService,
+        IClassesService classesService,
+        IResponsiblesService responsiblesService,
+        IPaymentsService paymentsService,
+        IContactsService contactsService,
+        IResidencesService residencesService,
+        IStudentDocumentsService studentDocumentsService)
+    {
+        _context = context;
+        _contractsService = contractsService;
+        _classesService = classesService;
+        _responsiblesService = responsiblesService;
+        _paymentsService = paymentsService;
+        _contactsService = contactsService;
+        _residencesService = residencesService;
+        _studentDocumentsService = studentDocumentsService;
+    }
 
     public async Task<Guid> CreateAsync(CreateStudentDto dto)
     {
         if (dto.ResponsibleId is not null)
-            if (!await CheckResponsibleExistenceAsync((Guid)dto.ResponsibleId)) throw new BadRequestException("ResponsibleNotFound");
+            await _responsiblesService.CheckExistenceAsync((Guid)dto.ResponsibleId);
 
-        Student student = new(dto.FirstName, dto.LastName, dto.Note, dto.ResponsibleId);
+        Student student = new(dto.FirstName, dto.LastName, dto.BirthDate, dto.Note, dto.ResponsibleId);
+        Guid studentId = student.Id;
 
-        while (await CheckStudentExistenceAsync(student.Id)) student = new(dto.FirstName, dto.LastName, dto.Note, dto.ResponsibleId);
+        while (await DoesExistAsync(studentId))
+            student = new(dto.FirstName, dto.LastName, dto.BirthDate, dto.Note, dto.ResponsibleId);
 
-        UpdateDocumentDto? document = dto.Document is not null ? new()
+        if (dto.Contract is not null)
         {
-            Rg = dto.Document.Rg,
-            Cpf = dto.Document.Cpf
-        } : null;
+            Guid contractId = await _contractsService.CreateAsync(studentId, dto.Contract, CheckExistenceAsync);
+            student.ActiveContractId = contractId;
 
-        await SetOptionalDataAsync(student, document, dto.Contact, dto.Residence);
+            if (dto.Contract.Payment is not null)
+                await _paymentsService.CreateAsync(contractId, dto.Contract.Payment);
+        }
+
+        if (dto.Document is not null)
+            await _studentDocumentsService.CreateAsync(studentId, dto.Document);
+
+        if (dto.Contact is not null)
+            await _contactsService.CreateAsync(studentId, dto.Contact);
+
+        if (dto.Residence is not null)
+            await _residencesService.CreateAsync(studentId, dto.Residence);
 
         _context.Students.Add(student);
 
-        return student.Id;
+        return studentId;
     }
 
     public async Task UpdateAsync(Guid id, UpdateStudentDto dto)
     {
-        Student student = await GetOneModelAsync(id);
+        Student student = await GetModelAsync(id);
+        Guid studentId = student.Id;
 
         if (dto.FirstName is not null) student.FirstName = dto.FirstName;
         if (dto.LastName is not null) student.LastName = dto.LastName;
         if (dto.IsActive is not null) student.IsActive = (bool)dto.IsActive;
         if (dto.Note is not null) student.Note = dto.Note;
+        if (dto.BirthDate is not null) student.BirthDate = dto.BirthDate;
+
+        if (dto.ActiveContractId is not null)
+        {
+            await _contractsService.CheckExistenceAsync((Guid)dto.ActiveContractId);
+
+            student.ActiveContractId = dto.ActiveContractId;
+        }
+
         if (dto.ResponsibleId is not null)
         {
-            if (!await CheckResponsibleExistenceAsync((Guid)dto.ResponsibleId)) throw new BadRequestException("ResponsibleNotFound");
+            await _responsiblesService.CheckExistenceAsync((Guid)dto.ResponsibleId);
 
             student.ResponsibleId = dto.ResponsibleId;
         }
 
-        await SetOptionalDataAsync(student, dto.Document, dto.Contact, dto.Residence);
+        if (dto.Document is not null)
+        {
+            if (student.Document is null)
+                await _studentDocumentsService.CreateAsync(studentId, dto.Document);
+            else
+                await _studentDocumentsService.UpdateAsync(studentId, dto.Document);
+        }
 
-        if (dto.RemoveList is not null) student.RemoveProps(_context, dto.RemoveList);
+        if (dto.Contact is not null)
+        {
+            if (student.Contact is null)
+                await _contactsService.CreateAsync(studentId, dto.Contact);
+            else
+                await _contactsService.UpdateAsync(studentId, dto.Contact);
+        }
+
+        if (dto.Residence is not null)
+        {
+            if (student.Residence is null)
+                await _residencesService.CreateAsync(studentId, dto.Residence);
+            else
+                await _residencesService.UpdateAsync(studentId, dto.Residence);
+        }
+
+        if (dto.SetNullList is not null)
+            await SetNullsAsync(dto.SetNullList, student);
     }
 
     public async Task DeleteAsync(Guid id)
     {
-        Student student = await GetOneModelAsync(id);
+        Student student = await GetCompleteModelAsync(id);
 
         _context.Students.Remove(student);
     }
 
+    public async Task CheckExistenceAsync(Guid id)
+    {
+        bool doesExist = await _context.Students.AnyAsync(student => student.Id == id);
+
+        if (!doesExist) throw _notFoundException;
+    }
+
     public async Task<IEnumerable<GetAllStudentsDto>> GetAllAsync()
     {
-        return await _context.Students
-            .AsNoTracking()
+        var classes =
+            _classesService
+            .QueryAll()
+            .Select(classObj => new { classObj.Name });
+
+        var contractsSummary = _contractsService.QueryAllSummary();
+
+        var students = _context.Students
             .Include("Responsible.Document")
-            .Select(student => new GetAllStudentsDto
+            .Select(student => new
             {
-                Id = student.Id,
-                FirstName = student.FirstName,
-                LastName = student.LastName,
-                IsActive = student.IsActive,
-                Document = student.Document,
-                Contact = student.Contact,
-                Note = student.Note,
-                Residence = student.Residence,
-                Responsible = student.Responsible
-            })
-            .ToListAsync();
+                student.Id,
+                student.FirstName,
+                student.LastName,
+                student.BirthDate,
+                student.IsActive,
+                student.Document,
+                student.Contact,
+                student.Note,
+                student.Residence,
+                student.Responsible,
+                student.ActiveContractId
+            });
+
+        List<GetAllStudentsDto> result = await (from student in students
+                                                join contractSummary in contractsSummary
+                                                on student.ActiveContractId equals contractSummary.Id into contractSummaryGroup
+                                                from contractSummary in contractSummaryGroup
+                                                select new GetAllStudentsDto()
+                                                {
+                                                    Id = student.Id,
+                                                    FirstName = student.FirstName,
+                                                    LastName = student.LastName,
+                                                    BirthDate = student.BirthDate,
+                                                    IsActive = student.IsActive,
+                                                    Document = student.Document,
+                                                    Contact = student.Contact,
+                                                    Note = student.Note,
+                                                    Residence = student.Residence,
+                                                    Responsible = student.Responsible,
+                                                    Contract = new GetContractResumeDto()
+                                                    {
+                                                        Class = contractSummary.Class,
+                                                        IsOwing = contractSummary.IsOwing
+                                                    }
+                                                })
+                                                .ToListAsync();
+
+        IEnumerable<GetAllStudentsDto> studentsWithoutClass = await (from student in students
+                                                                     where student.ActiveContractId == null
+                                                                     select new GetAllStudentsDto()
+                                                                     {
+                                                                         Id = student.Id,
+                                                                         FirstName = student.FirstName,
+                                                                         LastName = student.LastName,
+                                                                         BirthDate = student.BirthDate,
+                                                                         IsActive = student.IsActive,
+                                                                         Document = student.Document,
+                                                                         Contact = student.Contact,
+                                                                         Note = student.Note,
+                                                                         Residence = student.Residence,
+                                                                         Responsible = student.Responsible
+                                                                     })
+                                                                     .ToListAsync();
+
+        result.AddRange(studentsWithoutClass);
+        return result;
     }
 
-    public async Task<GetOneStudentDto> GetOneAsync(Guid id)
-    {
-        GetOneStudentDto? student = await _context.Students
-            .AsNoTracking()
-            .Where(student => student.Id == id)
-            .Include("Responsible.Document")
-            .Select(student => new GetOneStudentDto
-            {
-                FirstName = student.FirstName,
-                LastName = student.LastName,
-                IsActive = student.IsActive,
-                Document = student.Document,
-                Contact = student.Contact,
-                Residence = student.Residence,
-                Note = student.Note,
-                Responsible = student.Responsible
-            })
-            .FirstOrDefaultAsync();
-
-        if (student is null) throw new NotFoundException("StudentNotFound");
-
-        return student;
-    }
-
-    private async Task<Student> GetOneModelAsync(Guid id)
+    private async Task<Student> GetModelAsync(Guid id)
     {
         Student? student = await _context.Students
             .Where(student => student.Id == id)
@@ -119,50 +231,141 @@ public class StudentsService : IStudentsService
             .Include("Responsible.Document")
             .FirstOrDefaultAsync();
 
-        if (student is null) throw new NotFoundException("StudentNotFound");
+        if (student is null) throw _notFoundException;
 
         return student;
     }
 
-    private async Task SetOptionalDataAsync(
-        Student student,
-        UpdateDocumentDto? document,
-        UpdateContactDto? contact,
-        UpdateResidenceDto? residence)
+    private async Task<Student> GetCompleteModelAsync(Guid id)
     {
-        if (document is not null)
-        {
-            if (document.Rg is not null)
-                if (await CheckDocumentRgExistenceAsync(document.Rg))
-                    throw new ConflictException("NotUniqueStudentRg");
+        Student? student = await _context.Students
+            .Where(student => student.Id == id)
+            .Include("Document")
+            .Include("Responsible")
+            .Include("Contact")
+            .Include("Residence")
+            .Include("Responsible.Document")
+            .Include("Student.Contracts")
+            .Include("Student.Contracts.Payments")
+            .FirstOrDefaultAsync();
 
-            if (document.Cpf is not null)
-                if (await CheckDocumentCpfExistenceAsync(document.Cpf))
-                    throw new ConflictException("NotUniqueStudentCpf");
+        if (student is null) throw _notFoundException;
 
-            await student.SetDocumentAsync(document, AddDocument, CheckDocumentExistenceAsync);
-        }
-        if (contact is not null)
-        {
-            if (contact.Email is not null)
-                if (await CheckEmailExistenceAsync(contact.Email))
-                    throw new ConflictException("NotUniqueEmail");
-
-            await student.SetContactAsync(contact, AddContact, CheckContactExistenceAsync);
-        }
-        if (residence is not null)
-            await student.SetResidenceAsync(residence, AddResidence, CheckResidenceExistenceAsync);
+        return student;
     }
 
-    private void AddDocument(StudentDocument document) => _context.StudentDocuments.Add(document);
-    private void AddContact(Contact contact) => _context.Contacts.Add(contact);
-    private void AddResidence(Residence residence) => _context.Residences.Add(residence);
-    private async Task<bool> CheckDocumentExistenceAsync(Guid id) => await _context.StudentDocuments.AnyAsync(document => document.Id == id);
-    private async Task<bool> CheckContactExistenceAsync(Guid id) => await _context.Contacts.AnyAsync(contact => contact.Id == id);
-    private async Task<bool> CheckResidenceExistenceAsync(Guid id) => await _context.Residences.AnyAsync(residence => residence.Id == id);
-    private async Task<bool> CheckStudentExistenceAsync(Guid id) => await _context.Students.AnyAsync(student => student.Id == id);
-    private async Task<bool> CheckEmailExistenceAsync(string email) => await _context.Contacts.AnyAsync(contact => contact.Email == email);
-    private async Task<bool> CheckDocumentRgExistenceAsync(string rg) => await _context.StudentDocuments.AnyAsync(document => document.Rg == rg);
-    private async Task<bool> CheckDocumentCpfExistenceAsync(string cpf) => await _context.StudentDocuments.AnyAsync(document => document.Cpf == cpf);
-    private async Task<bool> CheckResponsibleExistenceAsync(Guid id) => await _context.Responsibles.AnyAsync(responsible => responsible.Id == id);
+    private async Task<bool> DoesExistAsync(Guid id)
+        => await _context.Students.AnyAsync(student => student.Id == id);
+
+    private async Task SetNullsAsync(string[] setNullList, Student student)
+    {
+        List<string> remainingProps = new();
+        Guid studentId = student.Id;
+        BadRequestException studentWithoutInfoException = new(
+                            "StudentWithoutInfo",
+                            "Student cannot be without cpf and responsible at the same time");
+
+        foreach (string propToSetNull in setNullList)
+        {
+            string prop = propToSetNull.ToPascalCase();
+
+            switch (prop)
+            {
+                case "Note":
+                    student.Note = null;
+                    continue;
+                case "BirthDate":
+                    student.BirthDate = null;
+                    continue;
+                case "ActiveContractId":
+                    student.ActiveContractId = null;
+                    continue;
+                case "ResponsibleId":
+                    if (student.Document is null)
+                        throw studentWithoutInfoException;
+
+                    student.ResponsibleId = null;
+                    continue;
+                case "Document":
+                    if (student.Document is null) continue;
+                    if (student.ResponsibleId is null)
+                        throw studentWithoutInfoException;
+
+                    await _studentDocumentsService.DeleteAsync(studentId);
+                    continue;
+                case "Contact":
+                    if (student.Contact is null) continue;
+
+                    await _contactsService.DeleteAsync(studentId);
+                    continue;
+                case "Residence":
+                    if (student.Residence is null) continue;
+
+                    await _residencesService.DeleteAsync(studentId);
+                    continue;
+                case "Rg":
+                    if (student.Document is null) continue;
+
+                    student.Document.Rg = null;
+                    continue;
+                case "Cpf":
+                    if (student.Document is null) continue;
+                    if (student.ResponsibleId is null)
+                        throw studentWithoutInfoException;
+
+                    student.Document.Cpf = null;
+                    continue;
+                case "Email":
+                    if (student.Contact is null) continue;
+
+                    student.Contact.Email = null;
+                    continue;
+                case "Landline":
+                    if (student.Contact is null) continue;
+
+                    student.Contact.Landline = null;
+                    continue;
+                case "CellPhone":
+                    if (student.Contact is null) continue;
+
+                    student.Contact.CellPhone = null;
+                    continue;
+                case "ZipCode":
+                    if (student.Residence is null) continue;
+
+                    student.Residence.ZipCode = null;
+                    continue;
+                case "Address":
+                    if (student.Residence is null) continue;
+
+                    student.Residence.Address = null;
+                    continue;
+                default:
+                    remainingProps.Add(prop);
+                    continue;
+            }
+        }
+
+        if (remainingProps.Count > 0)
+            throw new BadRequestException(
+                "InvalidProp",
+                $"{GetSentenceWithPropsName(remainingProps)} doesn't exist on the model or it cannot be set to null");
+    }
+
+    private static StringBuilder GetSentenceWithPropsName(List<string> remainingProps)
+    {
+        StringBuilder stringBuilder = new();
+
+        stringBuilder.Append(remainingProps[0]);
+
+        for (int i = 1; i < remainingProps.Count; i++)
+        {
+            if (i == remainingProps.Count - 1) stringBuilder.Append(" and ");
+            else stringBuilder.Append(", ");
+
+            stringBuilder.Append($"{remainingProps[i]}");
+        }
+
+        return stringBuilder;
+    }
 }

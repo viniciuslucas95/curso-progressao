@@ -1,6 +1,4 @@
-﻿using CursoProgressao.Server.Exceptions.Base;
-using CursoProgressao.Shared.Dto.Documents;
-using CursoProgressao.Shared.Dto.Responsibles;
+﻿using CursoProgressao.Shared.Dto.Responsibles;
 
 namespace CursoProgressao.Server.Models;
 
@@ -44,27 +42,6 @@ public class Responsible : Model
     {
         _firstName = firstName;
         _lastName = lastName;
-    }
-
-    public async Task SetDocumentAsync(UpdateDocumentDto dto, Func<Guid, Task<bool>> checkIdUniquenessAsync)
-    {
-        if (Document is null)
-        {
-            if (dto.Rg is null || dto.Cpf is null) throw new BadRequestException("InvalidResponsibleDocument", "Responsible document must have a valid rg and cpf");
-
-            ResponsibleDocument document = new(Id, dto.Rg, dto.Cpf);
-
-            while (!await checkIdUniquenessAsync(document.Id)) document = new(Id, dto.Rg, dto.Cpf);
-
-            Document = document;
-
-            return;
-        }
-
-        if (dto.Rg is not null) Document.Rg = dto.Rg;
-        if (dto.Cpf is not null) Document.Cpf = dto.Cpf;
-
-        UpdateModificationDate();
     }
 
     public static implicit operator GetOneResponsibleDto?(Responsible? responsible)

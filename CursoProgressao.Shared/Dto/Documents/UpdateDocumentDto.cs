@@ -14,6 +14,6 @@ public class UpdateDocumentDto : IValidatableObject
     {
         if (string.IsNullOrEmpty(Rg) &&
             string.IsNullOrEmpty(Cpf))
-            yield return new ValidationResult("NoChangesSent");
+            yield return new ValidationResult("NoDocumentDataSent");
     }
 }

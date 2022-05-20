@@ -47,32 +47,6 @@ public class Contact : Model
         _cellPhone = cellPhone;
     }
 
-    public List<string> RemoveProps(IEnumerable<string> props)
-    {
-        List<string> remaningProps = new();
-
-        foreach (string prop in props)
-        {
-            switch (prop)
-            {
-                case "Email":
-                    Email = null;
-                    continue;
-                case "Landline":
-                    Landline = null;
-                    continue;
-                case "CellPhone":
-                    CellPhone = null;
-                    continue;
-                default:
-                    remaningProps.Add(prop);
-                    continue;
-            }
-        }
-
-        return remaningProps;
-    }
-
     public static implicit operator GetOneContactDto?(Contact? contact)
         => contact is not null ? new()
         {

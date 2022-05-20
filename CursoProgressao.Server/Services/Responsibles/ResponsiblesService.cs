@@ -1,7 +1,7 @@
 ﻿using CursoProgressao.Server.Data;
 using CursoProgressao.Server.Exceptions.Base;
 using CursoProgressao.Server.Models;
-using CursoProgressao.Shared.Dto.Documents;
+using CursoProgressao.Server.Services.ResponsibleDocuments;
 using CursoProgressao.Shared.Dto.Responsibles;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,25 +10,23 @@ namespace CursoProgressao.Server.Services.Responsibles;
 public class ResponsiblesService : IResponsiblesService
 {
     private readonly SchoolContext _context;
+    private readonly IResponsibleDocumentsService _responsibleDocumentsService;
+    private readonly NotFoundException _notFoundException = new("ResponsibleNotFound");
 
-    public ResponsiblesService(SchoolContext context) => _context = context;
+    public ResponsiblesService(SchoolContext context, IResponsibleDocumentsService responsibleDocumentsService)
+    {
+        _context = context;
+        _responsibleDocumentsService = responsibleDocumentsService;
+    }
 
     public async Task<Guid> CreateAsync(CreateResponsibleDto dto)
     {
         Responsible responsible = new(dto.FirstName, dto.LastName);
 
-        while (!await CheckResponsibleIdUniquenessAsync(responsible.Id)) responsible = new(dto.FirstName, dto.LastName);
+        while (await DoesExistAsync(responsible.Id))
+            responsible = new(dto.FirstName, dto.LastName);
 
-        if (!await CheckRgUniquenessAsync(dto.Document.Rg)) throw new ConflictException("NotUniqueResponsibleRg");
-        if (!await CheckCpfUniquenessAsync(dto.Document.Cpf)) throw new ConflictException("NotUniqueResponsibleCpf");
-
-        UpdateDocumentDto document = new()
-        {
-            Rg = dto.Document.Rg,
-            Cpf = dto.Document.Cpf,
-        };
-
-        await responsible.SetDocumentAsync(document, CheckDocumentIdUniquenessAsync);
+        await _responsibleDocumentsService.CreateAsync(responsible.Id, dto.Document);
 
         _context.Responsibles.Add(responsible);
 
@@ -37,27 +35,17 @@ public class ResponsiblesService : IResponsiblesService
 
     public async Task UpdateAsync(Guid id, UpdateResponsibleDto dto)
     {
-        Responsible responsible = await GetOneModelAsync(id);
+        Responsible responsible = await GetModelAsync(id);
 
         if (dto.FirstName is not null) responsible.FirstName = dto.FirstName;
         if (dto.LastName is not null) responsible.LastName = dto.LastName;
         if (dto.Document is not null)
-        {
-            if (dto.Document.Rg is not null)
-                if (!await CheckRgUniquenessAsync(dto.Document.Rg)) throw new ConflictException("NotUniqueResponsibleRg");
-
-            if (dto.Document.Cpf is not null)
-                if (!await CheckCpfUniquenessAsync(dto.Document.Cpf)) throw new ConflictException("NotUniqueResponsibleCpf");
-
-            await responsible.SetDocumentAsync(dto.Document, CheckDocumentIdUniquenessAsync);
-        }
+            await _responsibleDocumentsService.UpdateAsync(responsible.Id, dto.Document);
     }
 
     public async Task DeleteAsync(Guid id)
     {
-        Responsible responsible = await GetOneModelAsync(id);
-
-        // Check if there is student depending on it
+        Responsible responsible = await GetCompleteModelAsync(id);
 
         _context.Responsibles.Remove(responsible);
     }
@@ -96,21 +84,37 @@ public class ResponsiblesService : IResponsiblesService
         return responsible;
     }
 
-    private async Task<Responsible> GetOneModelAsync(Guid id)
+    public async Task CheckExistenceAsync(Guid id)
+    {
+        bool doesExist = await _context.Responsibles.AnyAsync(responsible => responsible.Id == id);
+
+        if (!doesExist) throw _notFoundException;
+    }
+
+    private async Task<Responsible> GetModelAsync(Guid id)
     {
         Responsible? responsible = await _context.Responsibles
             .Where(responsible => responsible.Id == id)
-            .Include(responsible => responsible.Document)
-            .Include(responsible => responsible.Students)
             .FirstOrDefaultAsync();
 
-        if (responsible is null) throw new NotFoundException("ResponsibleNotFound");
+        if (responsible is null) throw _notFoundException;
 
         return responsible;
     }
 
-    private async Task<bool> CheckResponsibleIdUniquenessAsync(Guid id) => !await _context.Responsibles.AnyAsync(responsible => responsible.Id == id);
-    private async Task<bool> CheckDocumentIdUniquenessAsync(Guid id) => !await _context.ResponsibleDocuments.AnyAsync(document => document.Id == id);
-    private async Task<bool> CheckRgUniquenessAsync(string rg) => !await _context.ResponsibleDocuments.AnyAsync(document => document.Rg == rg);
-    private async Task<bool> CheckCpfUniquenessAsync(string cpf) => !await _context.ResponsibleDocuments.AnyAsync(document => document.Cpf == cpf);
+    private async Task<Responsible> GetCompleteModelAsync(Guid id)
+    {
+        Responsible? responsible = await _context.Responsibles
+            .Where(responsible => responsible.Id == id)
+            .Include("Document")
+            .Include("Responsible.Students")
+            .FirstOrDefaultAsync();
+
+        if (responsible is null) throw _notFoundException;
+
+        return responsible;
+    }
+
+    private async Task<bool> DoesExistAsync(Guid id)
+        => await _context.Responsibles.AnyAsync(responsible => responsible.Id == id);
 }

@@ -9,4 +9,6 @@ public interface IClassesService
     Task UpdateAsync(Guid id, UpdateClassDto dto);
     Task<IEnumerable<GetAllClassesDto>> GetAllAsync();
     Task<GetOneClassDto> GetOneAsync(Guid id);
+    Task CheckExistenceAsync(Guid id);
+    IQueryable<GetAllClassesDto> QueryAll();
 }

@@ -4,7 +4,7 @@ namespace CursoProgressao.Server.Models;
 
 public class ResponsibleDocument : Model
 {
-    public string Rg
+    public string? Rg
     {
         get => _rg;
         set
@@ -25,10 +25,10 @@ public class ResponsibleDocument : Model
     public Guid ResponsibleId { get; private init; }
     public Responsible Responsible { get; private init; } = null!;
 
-    private string _rg;
+    private string? _rg;
     private string _cpf;
 
-    public ResponsibleDocument(Guid responsibleId, string rg, string cpf) : base()
+    public ResponsibleDocument(Guid responsibleId, string cpf, string? rg = null) : base()
     {
         ResponsibleId = responsibleId;
         _rg = rg;

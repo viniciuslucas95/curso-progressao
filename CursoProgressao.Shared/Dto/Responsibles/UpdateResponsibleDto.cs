@@ -17,6 +17,6 @@ public class UpdateResponsibleDto : IValidatableObject
         if (FirstName is null &&
             LastName is null &&
             Document is null)
-            yield return new ValidationResult("NoChangesSent");
+            yield return new ValidationResult("NoResponsibleDataSent");
     }
 }

@@ -5,8 +5,8 @@ namespace CursoProgressao.Server.Models;
 public abstract class Model
 {
     public Guid Id { get; private init; }
-    public DateTime CreatedAt { get; init; }
-    public DateTime UpdatedAt { get; private set; }
+    public DateTime CreatedAt { get; private init; }
+    public DateTime UpdatedAt { get; set; }
 
     public Model()
     {
@@ -15,8 +15,5 @@ public abstract class Model
         UpdatedAt = UpdatedAt.GetCurrentUtcTime();
     }
 
-    public void UpdateModificationDate()
-    {
-        UpdatedAt = UpdatedAt.GetCurrentUtcTime();
-    }
+    protected void UpdateModificationDate() => UpdatedAt = UpdatedAt.GetCurrentUtcTime();
 }

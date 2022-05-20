@@ -9,16 +9,18 @@ namespace CursoProgressao.Server.Services.Classes;
 public class ClassesService : IClassesService
 {
     private readonly SchoolContext _context;
+    private readonly NotFoundException _notFoundException = new("ClassNotFound");
 
     public ClassesService(SchoolContext context) => _context = context;
 
     public async Task<Guid> CreateAsync(CreateClassDto dto)
     {
-        if (!await CheckNameUniquenessAsync(dto.Name)) throw new ConflictException("NotUniqueClassName");
+        await AssessNameUniquenessAsync(dto.Name);
 
         Class classObj = new(dto.Name);
 
-        while (!await CheckIdUniquenessAsync(classObj.Id)) classObj = new(dto.Name);
+        while (await DoesExistAsync(classObj.Id))
+            classObj = new(dto.Name);
 
         _context.Classes.Add(classObj);
 
@@ -27,19 +29,16 @@ public class ClassesService : IClassesService
 
     public async Task UpdateAsync(Guid id, UpdateClassDto dto)
     {
-        Class classObj = await GetOneModelAsync(id);
+        Class classObj = await GetModelAsync(id);
 
-        if (!await CheckNameUniquenessAsync(dto.Name)) throw new ConflictException("NotUniqueClassName");
+        await AssessNameUniquenessAsync(dto.Name);
 
-        if (dto.Name is not null)
-            classObj.Name = dto.Name;
+        if (dto.Name is not null) classObj.Name = dto.Name;
     }
 
     public async Task DeleteAsync(Guid id)
     {
-        Class classObj = await GetOneModelAsync(id);
-
-        // Check if there is student depending on it
+        Class classObj = await GetCompleteModelAsync(id);
 
         _context.Classes.Remove(classObj);
     }
@@ -67,23 +66,57 @@ public class ClassesService : IClassesService
             })
             .FirstOrDefaultAsync();
 
-        if (classObj is null) throw new NotFoundException("ClassNotFound");
+        if (classObj is null) throw _notFoundException;
 
         return classObj;
     }
 
-    private async Task<Class> GetOneModelAsync(Guid id)
+    public async Task CheckExistenceAsync(Guid id)
+    {
+        bool doesExist = await _context.Classes.AnyAsync(classObj => classObj.Id == id);
+
+        if (!doesExist) throw _notFoundException;
+    }
+
+    public IQueryable<GetAllClassesDto> QueryAll()
+    {
+        return from classObj in _context.Classes
+               select new GetAllClassesDto()
+               {
+                   Id = classObj.Id,
+                   Name = classObj.Name
+               };
+    }
+
+    private async Task<Class> GetModelAsync(Guid id)
+    {
+        Class? classObj = await _context.Classes
+            .FirstOrDefaultAsync(classObj => classObj.Id == id);
+
+        if (classObj is null) throw _notFoundException;
+
+        return classObj;
+    }
+
+    private async Task<Class> GetCompleteModelAsync(Guid id)
     {
         Class? classObj = await _context.Classes
             .Where(classObj => classObj.Id == id)
             .Include(classObj => classObj.Students)
             .FirstOrDefaultAsync();
 
-        if (classObj is null) throw new NotFoundException("ClassNotFound");
+        if (classObj is null) throw _notFoundException;
 
         return classObj;
     }
 
-    private async Task<bool> CheckIdUniquenessAsync(Guid id) => !await _context.Classes.AnyAsync(classObj => classObj.Id == id);
-    private async Task<bool> CheckNameUniquenessAsync(string name) => !await _context.Classes.AnyAsync(classObj => classObj.Name == name);
+    private async Task AssessNameUniquenessAsync(string name)
+    {
+        bool doesExist = await _context.Classes.AnyAsync(classObj => classObj.Name == name);
+
+        if (doesExist) throw new ConflictException("ClassNameAlreadyExists");
+    }
+
+    private async Task<bool> DoesExistAsync(Guid id)
+        => await _context.Classes.AnyAsync(classObj => classObj.Id == id);
 }

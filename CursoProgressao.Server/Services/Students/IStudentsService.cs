@@ -8,5 +8,5 @@ public interface IStudentsService
     Task DeleteAsync(Guid id);
     Task UpdateAsync(Guid id, UpdateStudentDto dto);
     Task<IEnumerable<GetAllStudentsDto>> GetAllAsync();
-    Task<GetOneStudentDto> GetOneAsync(Guid id);
+    Task CheckExistenceAsync(Guid id);
 }

@@ -75,6 +75,48 @@ namespace CursoProgressao.Server.Migrations
                     b.ToTable("Contacts");
                 });
 
+            modelBuilder.Entity("CursoProgressao.Server.Models.Contract", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CancelDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DueDateDay")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<float>("PaymentValue")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Contracts");
+                });
+
             modelBuilder.Entity("CursoProgressao.Server.Models.Error", b =>
                 {
                     b.Property<int>("Id")
@@ -97,6 +139,37 @@ namespace CursoProgressao.Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Errors");
+                });
+
+            modelBuilder.Entity("CursoProgressao.Server.Models.Payment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ContractId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ReferenceDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<float>("Value")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContractId");
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("CursoProgressao.Server.Models.Residence", b =>
@@ -190,6 +263,12 @@ namespace CursoProgressao.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ActiveContractId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("BirthDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid?>("ClassId")
                         .HasColumnType("uuid");
 
@@ -267,6 +346,30 @@ namespace CursoProgressao.Server.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("CursoProgressao.Server.Models.Contract", b =>
+                {
+                    b.HasOne("CursoProgressao.Server.Models.Class", null)
+                        .WithMany("Contracts")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CursoProgressao.Server.Models.Student", null)
+                        .WithMany("Contracts")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CursoProgressao.Server.Models.Payment", b =>
+                {
+                    b.HasOne("CursoProgressao.Server.Models.Contract", null)
+                        .WithMany("Payments")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("CursoProgressao.Server.Models.Residence", b =>
                 {
                     b.HasOne("CursoProgressao.Server.Models.Student", "Student")
@@ -315,7 +418,14 @@ namespace CursoProgressao.Server.Migrations
 
             modelBuilder.Entity("CursoProgressao.Server.Models.Class", b =>
                 {
+                    b.Navigation("Contracts");
+
                     b.Navigation("Students");
+                });
+
+            modelBuilder.Entity("CursoProgressao.Server.Models.Contract", b =>
+                {
+                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("CursoProgressao.Server.Models.Responsible", b =>
@@ -329,6 +439,8 @@ namespace CursoProgressao.Server.Migrations
             modelBuilder.Entity("CursoProgressao.Server.Models.Student", b =>
                 {
                     b.Navigation("Contact");
+
+                    b.Navigation("Contracts");
 
                     b.Navigation("Document");
 

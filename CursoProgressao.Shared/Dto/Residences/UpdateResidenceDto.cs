@@ -14,6 +14,6 @@ public class UpdateResidenceDto : IValidatableObject
     {
         if (string.IsNullOrEmpty(ZipCode) &&
             string.IsNullOrEmpty(Address))
-            yield return new ValidationResult("NoChangesSent");
+            yield return new ValidationResult("NoResidenceDataSent");
     }
 }

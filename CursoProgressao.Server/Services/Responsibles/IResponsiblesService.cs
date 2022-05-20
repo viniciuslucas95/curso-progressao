@@ -9,4 +9,5 @@ public interface IResponsiblesService
     Task UpdateAsync(Guid id, UpdateResponsibleDto dto);
     Task<IEnumerable<GetAllResponsiblesDto>> GetAllAsync();
     Task<GetOneResponsibleDto> GetOneAsync(Guid id);
+    Task CheckExistenceAsync(Guid id);
 }

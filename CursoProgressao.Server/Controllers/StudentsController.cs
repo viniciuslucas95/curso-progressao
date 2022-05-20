@@ -56,12 +56,4 @@ public class StudentsController : ControllerBase
 
         return Ok(results);
     }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<GetOneStudentDto>> GetOneAsync(Guid id)
-    {
-        GetOneStudentDto result = await _service.GetOneAsync(id);
-
-        return Ok(result);
-    }
 }

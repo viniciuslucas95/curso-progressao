@@ -1,4 +1,5 @@
-﻿using CursoProgressao.Server.Services.Responsibles;
+﻿using CursoProgressao.Server.Services.ResponsibleDocuments;
+using CursoProgressao.Server.Services.Responsibles;
 
 namespace CursoProgressao.Server.Test.Fixtures;
 
@@ -10,6 +11,6 @@ public class ResponsiblesFixture : SchoolDbFixture
     public ResponsiblesFixture() : base()
     {
         Id = Guid.Empty;
-        Service = new(Context);
+        Service = new(Context, new ResponsibleDocumentsService(Context));
     }
 }

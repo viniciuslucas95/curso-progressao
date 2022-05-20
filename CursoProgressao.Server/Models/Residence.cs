@@ -35,29 +35,6 @@ public class Residence : Model
         _address = address;
     }
 
-    public List<string> RemoveProps(IEnumerable<string> props)
-    {
-        List<string> remaningProps = new();
-
-        foreach (string prop in props)
-        {
-            switch (prop)
-            {
-                case "ZipCode":
-                    ZipCode = null;
-                    continue;
-                case "Address":
-                    Address = null;
-                    continue;
-                default:
-                    remaningProps.Add(prop);
-                    continue;
-            }
-        }
-
-        return remaningProps;
-    }
-
     public static implicit operator GetOneResidenceDto?(Residence? residence)
         => residence is not null ? new()
         {

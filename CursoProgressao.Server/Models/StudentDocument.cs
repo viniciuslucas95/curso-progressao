@@ -4,7 +4,7 @@ namespace CursoProgressao.Server.Models;
 
 public class StudentDocument : Model
 {
-    public string Rg
+    public string? Rg
     {
         get => _rg;
         set
@@ -13,7 +13,7 @@ public class StudentDocument : Model
             UpdateModificationDate();
         }
     }
-    public string Cpf
+    public string? Cpf
     {
         get => _cpf;
         set
@@ -25,10 +25,10 @@ public class StudentDocument : Model
     public Guid StudentId { get; private init; }
     public Student Student { get; private init; } = null!;
 
-    private string _rg;
-    private string _cpf;
+    private string? _rg;
+    private string? _cpf;
 
-    public StudentDocument(Guid studentId, string rg, string cpf) : base()
+    public StudentDocument(Guid studentId, string? cpf, string? rg = null) : base()
     {
         StudentId = studentId;
         _rg = rg;
