@@ -107,7 +107,7 @@ public class ResponsiblesService : IResponsiblesService
         Responsible? responsible = await _context.Responsibles
             .Where(responsible => responsible.Id == id)
             .Include("Document")
-            .Include("Responsible.Students")
+            .Include("Students")
             .FirstOrDefaultAsync();
 
         if (responsible is null) throw _notFoundException;
