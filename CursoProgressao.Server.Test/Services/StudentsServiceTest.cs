@@ -1,4 +1,5 @@
-﻿using CursoProgressao.Server.Test.Fixtures;
+﻿using CursoProgressao.Server.Exceptions.Base;
+using CursoProgressao.Server.Test.Fixtures;
 using CursoProgressao.Shared.Dto.Students;
 using System.ComponentModel.DataAnnotations;
 using Xunit;
@@ -136,5 +137,39 @@ public class StudentsServiceTest
         Assert.False(isValid);
         Assert.Equal(expectedFirstName, actualFirstName);
         Assert.Equal(expectedLastName, actualLastName);
+    }
+
+    [Fact, Order(1)]
+    public async void ShouldNotCreateStudentBecauseOfConflictRg()
+    {
+        CreateStudentDto dto = new()
+        {
+            FirstName = "A",
+            LastName = "B",
+            Document = new()
+            {
+                Rg = "18.548.649-4",
+                Cpf = "187.465.487-49"
+            }
+        };
+
+        await Assert.ThrowsAsync<ConflictException>(() => _fixture.StudentsService.CreateAsync(dto));
+    }
+
+    [Fact, Order(1)]
+    public async void ShouldNotCreateStudentBecauseOfConflictCpf()
+    {
+        CreateStudentDto dto = new()
+        {
+            FirstName = "A",
+            LastName = "B",
+            Document = new()
+            {
+                Rg = "18.548.622-4",
+                Cpf = "187.465.487-45"
+            },
+        };
+
+        await Assert.ThrowsAsync<ConflictException>(() => _fixture.StudentsService.CreateAsync(dto));
     }
 }
