@@ -27,6 +27,8 @@ public class SchoolDbFixture : IDisposable
     public Guid ClassId { get; set; }
     public Guid ResponsibleId { get; set; }
     public Guid StudentId { get; set; }
+    public Guid ContractId { get; set; }
+    public Guid PaymentId { get; set; }
 
     public SchoolDbFixture()
     {
@@ -49,7 +51,6 @@ public class SchoolDbFixture : IDisposable
             ContractsService,
             ClassesService,
             ResponsiblesService,
-            PaymentsService,
             ContactsService,
             ResidencesService,
             StudentDocumentsService);

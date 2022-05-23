@@ -4,7 +4,6 @@ using CursoProgressao.Server.Models;
 using CursoProgressao.Server.Services.Classes;
 using CursoProgressao.Server.Services.Contacts;
 using CursoProgressao.Server.Services.Contracts;
-using CursoProgressao.Server.Services.Payments;
 using CursoProgressao.Server.Services.Residences;
 using CursoProgressao.Server.Services.Responsibles;
 using CursoProgressao.Server.Services.StudentDocuments;
@@ -22,7 +21,6 @@ public class StudentsService : IStudentsService
     private readonly IContractsService _contractsService;
     private readonly IClassesService _classesService;
     private readonly IResponsiblesService _responsiblesService;
-    private readonly IPaymentsService _paymentsService;
     private readonly IContactsService _contactsService;
     private readonly IResidencesService _residencesService;
     private readonly IStudentDocumentsService _studentDocumentsService;
@@ -33,7 +31,6 @@ public class StudentsService : IStudentsService
         IContractsService contractsService,
         IClassesService classesService,
         IResponsiblesService responsiblesService,
-        IPaymentsService paymentsService,
         IContactsService contactsService,
         IResidencesService residencesService,
         IStudentDocumentsService studentDocumentsService)
@@ -42,7 +39,6 @@ public class StudentsService : IStudentsService
         _contractsService = contractsService;
         _classesService = classesService;
         _responsiblesService = responsiblesService;
-        _paymentsService = paymentsService;
         _contactsService = contactsService;
         _residencesService = residencesService;
         _studentDocumentsService = studentDocumentsService;
@@ -58,15 +54,6 @@ public class StudentsService : IStudentsService
 
         while (await DoesExistAsync(studentId))
             student = new(dto.FirstName, dto.LastName, dto.BirthDate, dto.Note, dto.ResponsibleId);
-
-        if (dto.Contract is not null)
-        {
-            Guid contractId = await _contractsService.CreateAsync(studentId, dto.Contract, CheckExistenceAsync);
-            student.ActiveContractId = contractId;
-
-            if (dto.Contract.Payment is not null)
-                await _paymentsService.CreateAsync(contractId, dto.Contract.Payment);
-        }
 
         if (dto.Document is not null)
             await _studentDocumentsService.CreateAsync(studentId, dto.Document);

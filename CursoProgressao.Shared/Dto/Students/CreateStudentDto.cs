@@ -1,6 +1,5 @@
 ﻿using CursoProgressao.Shared.Attributes;
 using CursoProgressao.Shared.Dto.Contacts;
-using CursoProgressao.Shared.Dto.Contracts;
 using CursoProgressao.Shared.Dto.Documents;
 using CursoProgressao.Shared.Dto.Residences;
 using System.ComponentModel.DataAnnotations;
@@ -18,7 +17,6 @@ public class CreateStudentDto : IValidatableObject
     public string? Note { get; set; }
     public DateTime? BirthDate { get; set; }
     public Guid? ResponsibleId { get; set; }
-    public CreateContractDto? Contract { get; set; }
     public UpdateDocumentDto? Document { get; set; }
     public UpdateContactDto? Contact { get; set; }
     public UpdateResidenceDto? Residence { get; set; }

@@ -22,7 +22,6 @@ public class PaymentsService : IPaymentsService
     public async Task<Guid> CreateAsync(Guid contractId, CreatePaymentDto dto)
     {
         await _contractsService.CheckExistenceAsync(contractId);
-
         await _contractsService.GetAndCheckDatesRange(contractId, dto.ReferenceDate);
         await AssessReferenceDateUniquenessAsync(contractId, dto.ReferenceDate);
 

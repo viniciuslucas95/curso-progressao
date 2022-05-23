@@ -158,6 +158,14 @@ public class ContractsService : IContractsService
         if (!doesExist) throw _notFoundException;
     }
 
+    public static void CheckDatesRange(DateTime startDate, DateTime endDate, DateTime date, DateTime? cancelDate = null)
+    {
+        DateTime finalDate = cancelDate ?? endDate;
+
+        if (date < startDate || date > finalDate)
+            throw new BadRequestException("DateNotInContractDatesRange");
+    }
+
     private static bool IsOwing(ContractFinanceDto contract)
     {
         if (!contract.ReferenceDates.Any()) return true;
@@ -218,13 +226,5 @@ public class ContractsService : IContractsService
         }
 
         return false;
-    }
-
-    private static void CheckDatesRange(DateTime startDate, DateTime endDate, DateTime date, DateTime? cancelDate = null)
-    {
-        DateTime finalDate = cancelDate ?? endDate;
-
-        if (date < startDate || date > finalDate)
-            throw new BadRequestException("DateNotInContractDatesRange");
     }
 }
