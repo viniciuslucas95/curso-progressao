@@ -7,15 +7,31 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Dto\**" />
+    <Compile Remove="Repositories\**" />
+    <Compile Remove="Services\**" />
+    <Compile Remove="Stores\**" />
+    <Content Remove="Dto\**" />
+    <Content Remove="Repositories\**" />
+    <Content Remove="Services\**" />
+    <Content Remove="Stores\**" />
+    <EmbeddedResource Remove="Dto\**" />
+    <EmbeddedResource Remove="Repositories\**" />
+    <EmbeddedResource Remove="Services\**" />
+    <EmbeddedResource Remove="Stores\**" />
+    <None Remove="Dto\**" />
+    <None Remove="Repositories\**" />
+    <None Remove="Services\**" />
+    <None Remove="Stores\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.4" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dto\" />
-    <Folder Include="Services\" />
-    <Folder Include="Stores\" />
-    <Folder Include="Repositories\" />
+    <ProjectReference Include="..\CursoProgressao.Shared\CursoProgressao.Shared.csproj" />
   </ItemGroup>
 
 </Project>

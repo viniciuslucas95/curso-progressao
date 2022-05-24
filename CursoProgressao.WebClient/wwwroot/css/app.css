@@ -24,4 +24,6 @@ html {
     --neutralHover: #E9EDF4;
     --neutralActive: #D4DBE9;
     --error: #F44336;
+    --owing: #FFB1AC;
+    --inactive: #c6c6c6;
 }

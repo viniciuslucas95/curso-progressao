@@ -1,0 +1,65 @@
+﻿@using CursoProgressao.Shared.Dto.Students
+
+<div class="container">
+    <div class="table_container">
+        <table cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Turma</th>
+                    <th>RG</th>
+                    <th>CPF</th>
+                    <th>Responsável</th>
+                    <th>RG do Responsável</th>
+                    <th>CPF do Responsável</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
+                    <th>Celular</th>
+                    <th>Situação</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(int i = 0; i < Data.Length; i++)
+                {
+                    GetAllStudentsDto student = Data[i];
+
+                    bool? status = student.Contract?.IsOwing;
+                    string lastOneClass = i == Data.Length - 1 ? "table_container__cell--no-border" : "";
+                    string centeredClass = "table_container__cell--centered";
+                    string statusClass = status is null ? 
+                        "table_container__row--inactive" : 
+                        status is true ? 
+                            "table_container__row--owing" :
+                            "";
+
+                    <tr class="@statusClass">
+                        <td class="@lastOneClass">@($"{student.FirstName} {student.LastName}")</td>
+                        <td class="@lastOneClass @centeredClass">@(student.Contract?.Class ?? "")</td>
+                        <td class="@lastOneClass @centeredClass">@(student.Document?.Rg ?? "")</td>
+                        <td class="@lastOneClass @centeredClass">@(student.Document?.Cpf ?? "")</td>
+                        <td class="@lastOneClass">
+                            @(student.Responsible is not null ?
+                                $"{student.Responsible.FirstName} {student.Responsible.LastName}" :
+                                "")
+                        </td>
+                        <td class="@lastOneClass @centeredClass">@(student.Responsible?.Document?.Rg ?? "")</td>
+                        <td class="@lastOneClass @centeredClass">@(student.Responsible?.Document?.Cpf ?? "")</td>
+                        <td class="@lastOneClass">@(student.Contact?.Email ?? "")</td>
+                        <td class="@lastOneClass">@(student.Contact?.Landline ?? "")</td>
+                        <td class="@lastOneClass">@(student.Contact?.CellPhone ?? "")</td>
+                        <td class="@lastOneClass @centeredClass">
+                            @(status is null ? 
+                                "Inativo" : 
+                                status is true ? 
+                                    "Devendo" : 
+                                    "Em dia")
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table> 
+    </div>
+    <div class="container__footer">
+        <span>146 resultados</span>
+    </div>
+</div>

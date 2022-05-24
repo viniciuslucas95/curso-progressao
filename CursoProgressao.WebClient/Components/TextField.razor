@@ -3,23 +3,23 @@
         container__text-field
         @(Data.HasError ?
             "container__text-field--error" :
-            IsFocused ? "container__text-field--focus" : "")"
+            _isFocused ? "container__text-field--focus" : "")"
         value="@Data.Text"
-        oninput="@OnTextChangedCallback"
-        onfocus="@(() => OnFocus(true))"
-        onblur="@(() => OnFocus(false))"/>
+        @oninput="@OnInputChanged"
+        @onfocus="@(() => OnFocus(true))"
+        @onblur="@(() => OnFocus(false))"/>
     <div class=container__label-container>
         <span class="
             container__label
             @(Data.HasError ?
                 "container__label--error" :
-                IsFocused ? "container__label--focus" : "")"
+                _isFocused ? "container__label--focus" : "")"
         >@Data.Label</span>
     </div>
     <div class=container__help-text-container>
         <span class="
             container__help-text
             @(Data.HasError ? "container__help-text--error" : "")"
-        >@Data.HelpText</span>
+        >@Data.CurrentHelpText</span>
     </div>
 </div>
