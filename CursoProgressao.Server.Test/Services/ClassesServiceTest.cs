@@ -91,7 +91,7 @@ public class ClassesServiceTest
     public async Task ShouldNotDeleteClassBecauseOfWrongId()
         => await Assert.ThrowsAsync<NotFoundException>(() => _fixture.ClassesService.DeleteAsync(Guid.Empty));
 
-    [Fact, Order(9)]
+    [Fact, Order(10)]
     public async Task ShouldCreateAnotherClassForFurtherTests()
     {
         CreateClassDto dto = new() { Name = "EPCAR" };

@@ -172,4 +172,23 @@ public class StudentsServiceTest
 
         await Assert.ThrowsAsync<ConflictException>(() => _fixture.StudentsService.CreateAsync(dto));
     }
+
+    [Fact, Order(1)]
+    public async void ShouldNotCreateStudentBecauseOfConflictEmail()
+    {
+        CreateStudentDto dto = new()
+        {
+            FirstName = "Antônio",
+            LastName = "Carlos",
+            ResponsibleId = _fixture.ResponsibleId,
+            Contact = new()
+            {
+                CellPhone = "(21) 94679-4679",
+                Landline = "(11) 4567-4698",
+                Email = "monkey.d.luffy@onepiece.com"
+            }
+        };
+
+        await Assert.ThrowsAsync<ConflictException>(() => _fixture.StudentsService.CreateAsync(dto));
+    }
 }
