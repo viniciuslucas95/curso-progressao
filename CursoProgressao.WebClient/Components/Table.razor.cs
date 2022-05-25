@@ -5,5 +5,5 @@ namespace CursoProgressao.WebClient.Components;
 
 public partial class Table
 {
-    [Parameter] public GetAllStudentsDto[] Data { get; set; } = null!;
+    [Parameter] public List<GetAllStudentsDto> Data { get; set; } = null!;
 }

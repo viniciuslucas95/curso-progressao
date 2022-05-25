@@ -1,151 +1,18 @@
 ﻿using CursoProgressao.Shared.Constants;
 using CursoProgressao.Shared.Dto.Students;
+using CursoProgressao.WebClient.Services.Students;
+using CursoProgressao.WebClient.Stores;
+using Microsoft.AspNetCore.Components;
 using static CursoProgressao.WebClient.Components.TextField;
 
 namespace CursoProgressao.WebClient.Pages;
 
 public partial class StudentList
 {
-    private readonly Dictionary<string, TextFieldData> _textFields;
-    private readonly List<GetAllStudentsDto> _students = new()
-    {
+    [Inject] public IStudentsService StudentsService { get; set; } = null!;
+    [Inject] public StudentsStore StudentsStore { get; set; } = null!;
 
-        new GetAllStudentsDto()
-        {
-            FirstName = "Carlos",
-            LastName = "Daniel de Almeida",
-            Contract = new()
-            {
-                Class = "EPCAR",
-                IsOwing = false
-            },
-            Responsible = new()
-            {
-                FirstName = "Pedro",
-                LastName = "Alvares de Almeida",
-                Document = new()
-                {
-                    Rg = "48.879.251-4",
-                    Cpf = "456.987.123-45"
-                }
-            },
-            Contact = new()
-            {
-                Email = "carlos.daniel@hotmail.com",
-                Landline = "(21) 2468-4879",
-                CellPhone = "(21) 94689-1464"
-            }
-        },
-        new GetAllStudentsDto()
-        {
-            FirstName = "Fátima",
-            LastName = "Bernardes",
-            Contract = new()
-            {
-                Class = "EspeCex",
-                IsOwing = false
-            },
-            Document = new()
-            {
-                Rg = "12.123.123-2",
-                Cpf = "416.564.874-46"
-            },
-            Responsible = new()
-            {
-                FirstName = "Ana",
-                LastName = "Bernardes",
-                Document = new()
-                {
-                    Rg = "18.89.251-1",
-                    Cpf = "456.987.233-45"
-                }
-            }
-        }, new GetAllStudentsDto()
-        {
-            FirstName = "William",
-            LastName = "Bonner da Silva",
-            Responsible = new()
-            {
-                FirstName = "João",
-                LastName = "de Jesus",
-                Document = new()
-                {
-                    Rg = "48.879.251-4",
-                    Cpf = "456.987.123-45"
-                }
-            },Contact = new()
-            {
-                CellPhone="(21) 94687-4697",
-                Landline="(21) 4679-1646",
-                Email="joao.jesus.12313@gmail.com"
-            }
-        },
-        new GetAllStudentsDto()
-        {
-            FirstName = "Luffy",
-            LastName = "Monkey D.",
-            Contract = new()
-            {
-                Class = "EPCAR",
-                IsOwing = true
-            },
-            Responsible = new()
-            {
-                FirstName = "Pedro",
-                LastName = "Paulo de Almeida",
-                Document = new()
-                {
-                    Rg = "48.879.251-4",
-                    Cpf = "456.987.123-45"
-                }
-            }
-        },
-        new GetAllStudentsDto()
-        {
-            FirstName = "Carlos",
-            LastName = "Daniel",
-            Contract = new()
-            {
-                Class = "EPCAR",
-                IsOwing = true
-            },
-            Responsible = new()
-            {
-                FirstName = "Pedro",
-                LastName = "Paulo de Almeida",
-                Document = new()
-                {
-                    Rg = "48.879.251-4",
-                    Cpf = "456.987.123-45"
-                }
-            }
-        },
-        new GetAllStudentsDto()
-        {
-            FirstName = "Carlos",
-            LastName = "Daniel",
-            Contract = new()
-            {
-                Class = "EPCAR",
-                IsOwing = false
-            },
-            Document = new()
-            {
-                Rg = "12.123.123-2",
-                Cpf = "456.564.874-46"
-            },
-            Responsible = new()
-            {
-                FirstName = "Pedro",
-                LastName = "Paulo de Almeida",
-                Document = new()
-                {
-                    Rg = "48.879.251-4",
-                    Cpf = "456.987.123-45"
-                }
-            }
-        }
-    };
+    private readonly Dictionary<string, TextFieldData> _textFields;
 
     public StudentList()
     {
@@ -258,6 +125,18 @@ public partial class StudentList
                 }
             }
         };
+    }
+
+    private async Task GetAllAsync()
+    {
+        IEnumerable<GetAllStudentsDto> result = await StudentsService.GetAllAsync();
+
+        foreach (GetAllStudentsDto student in result)
+        {
+            StudentsStore.Students.Add(student.Id, student);
+        }
+
+        StateHasChanged();
     }
 
     private void OnTextChanged(string text, string textFieldName)

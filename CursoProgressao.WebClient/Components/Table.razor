@@ -19,12 +19,12 @@
                 </tr>
             </thead>
             <tbody>
-                @for(int i = 0; i < Data.Length; i++)
+                @for(int i = 0; i < Data.Count; i++)
                 {
                     GetAllStudentsDto student = Data[i];
 
                     bool? status = student.Contract?.IsOwing;
-                    string lastOneClass = i == Data.Length - 1 ? "table_container__cell--no-border" : "";
+                    string lastOneClass = i == Data.Count - 1 ? "table_container__cell--no-border" : "";
                     string centeredClass = "table_container__cell--centered";
                     string statusClass = status is null ? 
                         "table_container__row--inactive" : 
