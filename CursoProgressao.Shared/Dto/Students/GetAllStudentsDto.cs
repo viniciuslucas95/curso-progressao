@@ -1,6 +1,17 @@
-﻿namespace CursoProgressao.Shared.Dto.Students;
+﻿using CursoProgressao.Shared.Dto.Contacts;
+using CursoProgressao.Shared.Dto.Contracts;
+using CursoProgressao.Shared.Dto.Documents;
+using CursoProgressao.Shared.Dto.Responsibles;
 
-public class GetAllStudentsDto : GetOneStudentDto
+namespace CursoProgressao.Shared.Dto.Students;
+
+public class GetAllStudentsDto
 {
     public Guid Id { get; set; }
+    public string FirstName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
+    public GetOneDocumentDto? Document { get; set; }
+    public GetOneResponsibleDto? Responsible { get; set; }
+    public GetOneContactDto? Contact { get; set; }
+    public ContractInfoDto? Contract { get; set; }
 }

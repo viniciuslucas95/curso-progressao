@@ -152,12 +152,8 @@ public class StudentsService : IStudentsService
                 student.Id,
                 student.FirstName,
                 student.LastName,
-                student.BirthDate,
-                student.IsActive,
                 student.Document,
                 student.Contact,
-                student.Note,
-                student.Residence,
                 student.Responsible,
                 student.ActiveContractId
             });
@@ -171,17 +167,14 @@ public class StudentsService : IStudentsService
                                                     Id = student.Id,
                                                     FirstName = student.FirstName,
                                                     LastName = student.LastName,
-                                                    BirthDate = student.BirthDate,
-                                                    IsActive = student.IsActive,
                                                     Document = student.Document,
                                                     Contact = student.Contact,
-                                                    Note = student.Note,
-                                                    Residence = student.Residence,
                                                     Responsible = student.Responsible,
-                                                    Contract = new GetContractResumeDto()
+                                                    Contract = new ContractInfoDto()
                                                     {
                                                         Class = contractSummary.Class,
-                                                        IsOwing = contractSummary.IsOwing
+                                                        IsOwing = contractSummary.IsOwing,
+                                                        IsActive = contractSummary.IsActive
                                                     }
                                                 })
                                                 .ToListAsync();
@@ -193,12 +186,8 @@ public class StudentsService : IStudentsService
                                                                          Id = student.Id,
                                                                          FirstName = student.FirstName,
                                                                          LastName = student.LastName,
-                                                                         BirthDate = student.BirthDate,
-                                                                         IsActive = student.IsActive,
                                                                          Document = student.Document,
                                                                          Contact = student.Contact,
-                                                                         Note = student.Note,
-                                                                         Residence = student.Residence,
                                                                          Responsible = student.Responsible
                                                                      })
                                                                      .ToListAsync();

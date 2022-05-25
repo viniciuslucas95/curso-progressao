@@ -17,5 +17,5 @@ public class GetOneStudentDto
     public GetOneResponsibleDto? Responsible { get; set; }
     public GetOneContactDto? Contact { get; set; }
     public GetOneResidenceDto? Residence { get; set; }
-    public GetContractResumeDto? Contract { get; set; }
+    public ContractInfoDto? Contract { get; set; }
 }

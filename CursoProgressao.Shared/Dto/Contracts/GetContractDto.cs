@@ -9,4 +9,5 @@ public abstract class GetContractDto
     public int DueDateDay { get; set; }
     public string Class { get; set; } = null!;
     public bool IsOwing { get; set; }
+    public bool IsActive { get; set; }
 }

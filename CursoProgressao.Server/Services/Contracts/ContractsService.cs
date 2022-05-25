@@ -81,6 +81,12 @@ public class ContractsService : IContractsService
                         CancelDate = contract.CancelDate,
                         DueDateDay = contract.DueDateDay,
                         ReferenceDates = contract.Payments.Select(payment => payment.ReferenceDate)
+                    }),
+                    IsActive = IsActive(new()
+                    {
+                        StartDate = contract.StartDate,
+                        EndDate = contract.EndDate,
+                        CancelDate = contract.CancelDate
                     })
                 })
             .ToListAsync();
@@ -125,6 +131,12 @@ public class ContractsService : IContractsService
                         CancelDate = contract.CancelDate,
                         DueDateDay = contract.DueDateDay,
                         ReferenceDates = contract.Payments.Select(payment => payment.ReferenceDate)
+                    }),
+                    IsActive = IsActive(new()
+                    {
+                        StartDate = contract.StartDate,
+                        EndDate = contract.EndDate,
+                        CancelDate = contract.CancelDate
                     })
                 });
     }
@@ -164,6 +176,18 @@ public class ContractsService : IContractsService
 
         if (date < startDate || date > finalDate)
             throw new BadRequestException("DateNotInContractDatesRange");
+    }
+
+    private static bool IsActive(ContractDatesDto contract)
+    {
+        DateTime now = DateTime.Now.GetUtcTime();
+        DateTime end = contract.CancelDate is not null ?
+            (DateTime)contract.CancelDate :
+            contract.EndDate;
+
+        if (now > end) return false;
+
+        return true;
     }
 
     private static bool IsOwing(ContractFinanceDto contract)
