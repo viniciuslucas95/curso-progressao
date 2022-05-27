@@ -30,15 +30,6 @@ public class Student : Model
             UpdateModificationDate();
         }
     }
-    public bool IsActive
-    {
-        get => _isActive;
-        set
-        {
-            _isActive = value;
-            UpdateModificationDate();
-        }
-    }
     public DateTime? BirthDate
     {
         get => _birthDate;
@@ -75,7 +66,6 @@ public class Student : Model
 
     private string _firstName;
     private string _lastName;
-    private bool _isActive = true;
     private DateTime? _birthDate;
     private string? _note;
     private Guid? _responsibleId;

@@ -76,16 +76,8 @@ public class StudentsService : IStudentsService
 
         if (dto.FirstName is not null) student.FirstName = dto.FirstName;
         if (dto.LastName is not null) student.LastName = dto.LastName;
-        if (dto.IsActive is not null) student.IsActive = (bool)dto.IsActive;
         if (dto.Note is not null) student.Note = dto.Note;
         if (dto.BirthDate is not null) student.BirthDate = dto.BirthDate;
-
-        if (dto.ActiveContractId is not null)
-        {
-            await _contractsService.CheckExistenceAsync((Guid)dto.ActiveContractId);
-
-            student.ActiveContractId = dto.ActiveContractId;
-        }
 
         if (dto.ResponsibleId is not null)
         {
@@ -136,64 +128,88 @@ public class StudentsService : IStudentsService
         if (!doesExist) throw _notFoundException;
     }
 
-    public async Task<IEnumerable<GetAllStudentsDto>> GetAllAsync()
+    public async Task<GetAllPartialStudentsDto> GetAllAsync(GetAllStudentsQueryDto query)
     {
-        var classes =
-            _classesService
-            .QueryAll()
-            .Select(classObj => new { classObj.Name });
-
-        var contractsSummary = _contractsService.QueryAllSummary();
-
-        var students = _context.Students
-            .Include("Responsible.Document")
-            .Select(student => new
+        IQueryable<Student> studentModels = QueryAllModels(query);
+        IQueryable<GetPartialStudentDto> result = studentModels
+            .Select(student => new GetPartialStudentDto()
             {
-                student.Id,
-                student.FirstName,
-                student.LastName,
-                student.Document,
-                student.Contact,
-                student.Responsible,
-                student.ActiveContractId
+                Id = student.Id,
+                FirstName = student.FirstName,
+                LastName = student.LastName,
+                Contact = student.Contact,
+                Document = student.Document,
+                Responsible = student.Responsible,
+                Contract = new ContractsInfoDto()
+                {
+                    ActiveClassesId = GetActiveClasses(student.Contracts),
+                    IsOwing = IsStudentOwing(student.Contracts)
+                }
             });
 
-        List<GetAllStudentsDto> result = await (from student in students
-                                                join contractSummary in contractsSummary
-                                                on student.ActiveContractId equals contractSummary.Id into contractSummaryGroup
-                                                from contractSummary in contractSummaryGroup
-                                                select new GetAllStudentsDto()
-                                                {
-                                                    Id = student.Id,
-                                                    FirstName = student.FirstName,
-                                                    LastName = student.LastName,
-                                                    Document = student.Document,
-                                                    Contact = student.Contact,
-                                                    Responsible = student.Responsible,
-                                                    Contract = new ContractInfoDto()
-                                                    {
-                                                        Class = contractSummary.Class,
-                                                        IsOwing = contractSummary.IsOwing,
-                                                        IsActive = contractSummary.IsActive
-                                                    }
-                                                })
-                                                .ToListAsync();
+        // BROKEN
+        //if (query.IsOwing is not null)
+        //    result = result.Where(student => student.Contract.IsOwing == (bool)query.IsOwing);
 
-        IEnumerable<GetAllStudentsDto> studentsWithoutClass = await (from student in students
-                                                                     where student.ActiveContractId == null
-                                                                     select new GetAllStudentsDto()
-                                                                     {
-                                                                         Id = student.Id,
-                                                                         FirstName = student.FirstName,
-                                                                         LastName = student.LastName,
-                                                                         Document = student.Document,
-                                                                         Contact = student.Contact,
-                                                                         Responsible = student.Responsible
-                                                                     })
-                                                                     .ToListAsync();
+        // BROKEN
+        //if (query.ClassId is not null)
+        //{
+        //    if (query.ClassId == Guid.Empty)
+        //        result = result.Where(student => !student.Contract.ActiveClassesId.Any());
+        //    else
+        //        result = result.Where(student => student.Contract.ActiveClassesId.Any(id => id == classId));
+        //}
 
-        result.AddRange(studentsWithoutClass);
-        return result;
+        int count = result.Count();
+
+        if (query.Take is not null)
+            if (query.Take > 25)
+                throw new BadRequestException("TakeLimitIs25");
+
+        int take = query.Take ?? 10;
+        int skip = query.Skip ?? 0;
+
+        result = result.Skip(skip).Take(take);
+
+        return new GetAllPartialStudentsDto()
+        {
+            Count = count,
+            Students = await result.ToListAsync()
+        };
+    }
+
+    private IQueryable<Student> QueryAllModels(GetAllStudentsQueryDto query)
+    {
+        IQueryable<Student> students = _context.Students.AsNoTracking();
+
+        if (query.FirstName is not null)
+            students = students.Where(student => student.FirstName == query.FirstName);
+
+        if (query.LastName is not null)
+            students = students.Where(student => student.LastName == query.LastName);
+
+        if (query.Rg is not null)
+            students = students.Where(student => student.Document != null && student.Document.Rg == query.Rg);
+
+        if (query.Cpf is not null)
+            students = students.Where(student => student.Document != null && student.Document.Cpf == query.Cpf);
+
+        if (query.ResponsibleFirstName is not null)
+            students = students.Where(student => student.Responsible != null && student.Responsible.FirstName == query.ResponsibleFirstName);
+
+        if (query.ResponsibleLastName is not null)
+            students = students.Where(student => student.Responsible != null && student.Responsible.LastName == query.ResponsibleLastName);
+
+        if (query.ResponsibleRg is not null)
+            students = students.Where(student => student.Responsible != null && student.Responsible.Document.Rg == query.Rg);
+
+        if (query.ResponsibleCpf is not null)
+            students = students.Where(student => student.Responsible != null && student.Responsible.Document.Cpf == query.Cpf);
+
+        return students
+            .Include("Responsible.Document")
+            .Include("Contracts")
+            .Include("Contracts.Payments");
     }
 
     private async Task<Student> GetModelAsync(Guid id)
@@ -252,9 +268,6 @@ public class StudentsService : IStudentsService
                     continue;
                 case "BirthDate":
                     student.BirthDate = null;
-                    continue;
-                case "ActiveContractId":
-                    student.ActiveContractId = null;
                     continue;
                 case "ResponsibleId":
                     if (student.Document is null)
@@ -344,4 +357,12 @@ public class StudentsService : IStudentsService
 
         return stringBuilder;
     }
+
+    private static bool IsStudentOwing(IReadOnlyCollection<Contract> contracts)
+        => contracts.Any(contract => ContractsService.IsOwing(contract));
+
+    private static IEnumerable<Guid> GetActiveClasses(IReadOnlyCollection<Contract> contracts)
+        => contracts
+            .Where(contract => ContractsService.IsActive(contract))
+            .Select(contract => contract.ClassId);
 }

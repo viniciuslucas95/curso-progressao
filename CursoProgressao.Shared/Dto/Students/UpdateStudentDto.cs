@@ -14,9 +14,7 @@ public class UpdateStudentDto : IValidatableObject
     public string? LastName { get; set; }
     public string? Note { get; set; }
     public DateTime? BirthDate { get; set; }
-    public bool? IsActive { get; set; }
     public Guid? ResponsibleId { get; set; }
-    public Guid? ActiveContractId { get; set; }
     public UpdateDocumentDto? Document { get; set; }
     public UpdateContactDto? Contact { get; set; }
     public UpdateResidenceDto? Residence { get; set; }
@@ -45,9 +43,7 @@ public class UpdateStudentDto : IValidatableObject
             string.IsNullOrEmpty(LastName) &&
             string.IsNullOrEmpty(Note) &&
             BirthDate is null &&
-            IsActive is null &&
             ResponsibleId is null &&
-            ActiveContractId is null &&
             Document is null &&
             Contact is null &&
             Residence is null &&

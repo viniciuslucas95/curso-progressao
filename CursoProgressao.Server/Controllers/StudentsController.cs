@@ -50,10 +50,10 @@ public class StudentsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<GetAllStudentsDto>>> GetAllAsync()
+    public async Task<ActionResult<GetAllPartialStudentsDto>> GetAllAsync([FromQuery] GetAllStudentsQueryDto query)
     {
-        IEnumerable<GetAllStudentsDto> results = await _service.GetAllAsync();
+        GetAllPartialStudentsDto result = await _service.GetAllAsync(query);
 
-        return Ok(results);
+        return Ok(result);
     }
 }

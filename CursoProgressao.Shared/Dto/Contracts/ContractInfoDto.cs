@@ -1,8 +1,7 @@
 ﻿namespace CursoProgressao.Shared.Dto.Contracts;
 
-public class ContractInfoDto
+public class ContractsInfoDto
 {
-    public string Class { get; set; } = null!;
+    public IEnumerable<Guid> ActiveClassesId { get; set; } = null!;
     public bool IsOwing { get; set; }
-    public bool IsActive { get; set; }
 }

@@ -5,7 +5,7 @@ using CursoProgressao.Shared.Dto.Responsibles;
 
 namespace CursoProgressao.Shared.Dto.Students;
 
-public class GetAllStudentsDto
+public class GetPartialStudentDto
 {
     public Guid Id { get; set; }
     public string FirstName { get; set; } = null!;
@@ -13,5 +13,5 @@ public class GetAllStudentsDto
     public GetOneDocumentDto? Document { get; set; }
     public GetOneResponsibleDto? Responsible { get; set; }
     public GetOneContactDto? Contact { get; set; }
-    public ContractsInfoDto? Contract { get; set; }
+    public ContractsInfoDto Contract { get; set; } = null!;
 }

@@ -56,9 +56,16 @@ public class ContractsService : IContractsService
 
     public async Task<IEnumerable<GetAllContractsDto>> GetAllAsync(Guid studentId)
     {
-        IQueryable<GetAllClassesDto> classes = _classesService.QueryAll();
+        IQueryable<GetAllClassesDto> classes = _classesService
+            .QueryAll()
+            .Select(classObj => new GetAllClassesDto()
+            {
+                Id = classObj.Id,
+                Name = classObj.Name
+            });
 
         return await _context.Contracts
+            .AsNoTracking()
             .Where(contract => contract.StudentId == studentId)
             .Include(contract => contract.Payments)
             .Join(
@@ -74,20 +81,8 @@ public class ContractsService : IContractsService
                     DueDateDay = contract.DueDateDay,
                     PaymentValue = contract.PaymentValue,
                     Class = classObj.Name,
-                    IsOwing = IsOwing(new()
-                    {
-                        StartDate = contract.StartDate,
-                        EndDate = contract.EndDate,
-                        CancelDate = contract.CancelDate,
-                        DueDateDay = contract.DueDateDay,
-                        ReferenceDates = contract.Payments.Select(payment => payment.ReferenceDate)
-                    }),
-                    IsActive = IsActive(new()
-                    {
-                        StartDate = contract.StartDate,
-                        EndDate = contract.EndDate,
-                        CancelDate = contract.CancelDate
-                    })
+                    IsOwing = IsOwing(contract),
+                    IsActive = IsActive(contract)
                 })
             .ToListAsync();
     }
@@ -110,36 +105,18 @@ public class ContractsService : IContractsService
         CheckDatesRange(result.StartDate, result.EndDate, date, result.CancelDate);
     }
 
-    public IQueryable<GetAllContractsSummaryDto> QueryAllSummary()
-    {
-        IQueryable<GetAllClassesDto> classes = _classesService.QueryAll();
-
-        return _context.Contracts
+    public async Task<IEnumerable<GetAllContractsSummaryDto>> GetAllSummariesAsync(Guid studentId)
+        => await _context.Contracts
+            .AsNoTracking()
+            .Where(contract => contract.StudentId == studentId)
             .Include(contract => contract.Payments)
-            .Join(
-                classes,
-                contract => contract.ClassId,
-                classObj => classObj.Id,
-                (contract, classObj) => new GetAllContractsSummaryDto
-                {
-                    Id = contract.Id,
-                    Class = classObj.Name,
-                    IsOwing = IsOwing(new()
-                    {
-                        StartDate = contract.StartDate,
-                        EndDate = contract.EndDate,
-                        CancelDate = contract.CancelDate,
-                        DueDateDay = contract.DueDateDay,
-                        ReferenceDates = contract.Payments.Select(payment => payment.ReferenceDate)
-                    }),
-                    IsActive = IsActive(new()
-                    {
-                        StartDate = contract.StartDate,
-                        EndDate = contract.EndDate,
-                        CancelDate = contract.CancelDate
-                    })
-                });
-    }
+            .Select(contract => new GetAllContractsSummaryDto
+            {
+                ClassId = contract.ClassId,
+                IsOwing = IsOwing(contract),
+                IsActive = IsActive(contract)
+            })
+            .ToListAsync();
 
     private async Task<Contract> GetModelAsync(Guid id)
     {
@@ -178,8 +155,10 @@ public class ContractsService : IContractsService
             throw new BadRequestException("DateNotInContractDatesRange");
     }
 
-    private static bool IsActive(ContractDatesDto contract)
+    public static bool IsActive(Contract contractModel)
     {
+        ContractDatesDto contract = GetContractDates(contractModel);
+
         DateTime now = DateTime.Now.GetUtcTime();
         DateTime end = contract.CancelDate is not null ?
             (DateTime)contract.CancelDate :
@@ -190,8 +169,10 @@ public class ContractsService : IContractsService
         return true;
     }
 
-    private static bool IsOwing(ContractFinanceDto contract)
+    public static bool IsOwing(Contract contractModel)
     {
+        ContractFinanceDto contract = GetContractFinance(contractModel);
+
         if (!contract.ReferenceDates.Any()) return true;
 
         DateTime now = DateTime.Now.GetUtcTime();
@@ -250,5 +231,27 @@ public class ContractsService : IContractsService
         }
 
         return false;
+    }
+
+    private static ContractFinanceDto GetContractFinance(Contract contract)
+    {
+        return new()
+        {
+            StartDate = contract.StartDate,
+            EndDate = contract.EndDate,
+            CancelDate = contract.CancelDate,
+            DueDateDay = contract.DueDateDay,
+            ReferenceDates = contract.Payments.Select(payment => payment.ReferenceDate)
+        };
+    }
+
+    private static ContractDatesDto GetContractDates(Contract contract)
+    {
+        return new()
+        {
+            StartDate = contract.StartDate,
+            EndDate = contract.EndDate,
+            CancelDate = contract.CancelDate
+        };
     }
 }

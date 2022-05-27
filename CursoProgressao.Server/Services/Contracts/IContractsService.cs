@@ -9,6 +9,6 @@ public interface IContractsService
     Task DeleteAsync(Guid id);
     Task<IEnumerable<GetAllContractsDto>> GetAllAsync(Guid studentId);
     Task CheckExistenceAsync(Guid id);
+    Task<IEnumerable<GetAllContractsSummaryDto>> GetAllSummariesAsync(Guid studentId);
     Task GetAndCheckDatesRange(Guid contractId, DateTime date);
-    IQueryable<GetAllContractsSummaryDto> QueryAllSummary();
 }

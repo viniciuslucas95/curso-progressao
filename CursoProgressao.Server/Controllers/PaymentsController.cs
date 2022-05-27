@@ -49,7 +49,7 @@ public class PaymentsController : ControllerBase
         return NoContent();
     }
 
-    [HttpGet("contracts /{contractId}/[controller]")]
+    [HttpGet("contracts/{contractId}/[controller]")]
     public async Task<ActionResult<IEnumerable<GetAllPaymentsDto>>> GetAllAsync(Guid contractId)
     {
         IEnumerable<GetAllPaymentsDto> results = await _service.GetAllAsync(contractId);

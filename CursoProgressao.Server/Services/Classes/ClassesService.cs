@@ -43,11 +43,23 @@ public class ClassesService : IClassesService
         _context.Classes.Remove(classObj);
     }
 
+    public IQueryable<Class> QueryAll()
+        => _context.Classes.AsNoTracking();
+
+    public Class QueryOne(Guid id)
+    {
+        Class? classModel = QueryAll().FirstOrDefault(classObj => classObj.Id == id);
+
+        if (classModel is null) throw _notFoundException;
+
+        return classModel;
+    }
+
     public async Task<IEnumerable<GetAllClassesDto>> GetAllAsync()
     {
         return await _context.Classes
             .AsNoTracking()
-            .Select(classObj => new GetAllClassesDto
+            .Select(classObj => new GetAllClassesDto()
             {
                 Id = classObj.Id,
                 Name = classObj.Name
@@ -76,16 +88,6 @@ public class ClassesService : IClassesService
         bool doesExist = await _context.Classes.AnyAsync(classObj => classObj.Id == id);
 
         if (!doesExist) throw _notFoundException;
-    }
-
-    public IQueryable<GetAllClassesDto> QueryAll()
-    {
-        return from classObj in _context.Classes
-               select new GetAllClassesDto()
-               {
-                   Id = classObj.Id,
-                   Name = classObj.Name
-               };
     }
 
     private async Task<Class> GetModelAsync(Guid id)
