@@ -130,8 +130,8 @@ public class StudentsService : IStudentsService
 
     public async Task<GetAllPartialStudentsDto> GetAllAsync(GetAllStudentsQueryDto query)
     {
-        IQueryable<Student> studentModels = QueryAllModels(query);
-        IQueryable<GetPartialStudentDto> result = studentModels
+        IEnumerable<Student> students = await QueryAllModels(query).ToListAsync();
+        IEnumerable<GetPartialStudentDto> result = students
             .Select(student => new GetPartialStudentDto()
             {
                 Id = student.Id,
@@ -147,18 +147,16 @@ public class StudentsService : IStudentsService
                 }
             });
 
-        // BROKEN
-        //if (query.IsOwing is not null)
-        //    result = result.Where(student => student.Contract.IsOwing == (bool)query.IsOwing);
+        if (query.IsOwing is not null)
+            result = result.Where(student => student.Contract.IsOwing == (bool)query.IsOwing);
 
-        // BROKEN
-        //if (query.ClassId is not null)
-        //{
-        //    if (query.ClassId == Guid.Empty)
-        //        result = result.Where(student => !student.Contract.ActiveClassesId.Any());
-        //    else
-        //        result = result.Where(student => student.Contract.ActiveClassesId.Any(id => id == classId));
-        //}
+        if (query.ClassId is not null)
+        {
+            if (query.ClassId == Guid.Empty)
+                result = result.Where(student => !student.Contract.ActiveClassesId.Any());
+            else
+                result = result.Where(student => student.Contract.ActiveClassesId.Any(id => id == query.ClassId));
+        }
 
         int count = result.Count();
 
@@ -174,13 +172,17 @@ public class StudentsService : IStudentsService
         return new GetAllPartialStudentsDto()
         {
             Count = count,
-            Students = await result.ToListAsync()
+            Students = result
         };
     }
 
     private IQueryable<Student> QueryAllModels(GetAllStudentsQueryDto query)
     {
-        IQueryable<Student> students = _context.Students.AsNoTracking();
+        IQueryable<Student> students = _context.Students
+            .AsNoTracking()
+            .Include("Responsible.Document")
+            .Include("Contracts")
+            .Include("Contracts.Payments");
 
         if (query.FirstName is not null)
             students = students.Where(student => student.FirstName == query.FirstName);
@@ -201,27 +203,23 @@ public class StudentsService : IStudentsService
             students = students.Where(student => student.Responsible != null && student.Responsible.LastName == query.ResponsibleLastName);
 
         if (query.ResponsibleRg is not null)
-            students = students.Where(student => student.Responsible != null && student.Responsible.Document.Rg == query.Rg);
+            students = students.Where(student => student.Responsible != null && student.Responsible.Document.Rg != null && student.Responsible.Document.Rg == query.ResponsibleRg);
 
         if (query.ResponsibleCpf is not null)
-            students = students.Where(student => student.Responsible != null && student.Responsible.Document.Cpf == query.Cpf);
+            students = students.Where(student => student.Responsible != null && student.Responsible.Document.Cpf == query.ResponsibleCpf);
 
-        return students
-            .Include("Responsible.Document")
-            .Include("Contracts")
-            .Include("Contracts.Payments");
+        return students;
     }
 
     private async Task<Student> GetModelAsync(Guid id)
     {
         Student? student = await _context.Students
-            .Where(student => student.Id == id)
             .Include("Document")
             .Include("Responsible")
             .Include("Contact")
             .Include("Residence")
             .Include("Responsible.Document")
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(student => student.Id == id);
 
         if (student is null) throw _notFoundException;
 
@@ -231,7 +229,6 @@ public class StudentsService : IStudentsService
     private async Task<Student> GetCompleteModelAsync(Guid id)
     {
         Student? student = await _context.Students
-            .Where(student => student.Id == id)
             .Include("Document")
             .Include("Responsible")
             .Include("Contact")
@@ -239,7 +236,7 @@ public class StudentsService : IStudentsService
             .Include("Responsible.Document")
             .Include("Student.Contracts")
             .Include("Student.Contracts.Payments")
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(student => student.Id == id);
 
         if (student is null) throw _notFoundException;
 
