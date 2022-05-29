@@ -5,11 +5,11 @@ namespace CursoProgressao.Shared.Dto.Contacts;
 
 public class UpdateContactDto : IValidatableObject
 {
-    [CustomEmail]
+    [EmailAddress(ErrorMessage = "WrongEmailFormat")]
     public string? Email { get; set; }
-    [CustomRegex("^[(][0-9]{2}[)] [0-9]{4}-[0-9]{4}$", "(XX) XXXX-XXXX")]
+    [ExactLength(10)]
     public string? Landline { get; set; }
-    [CustomRegex("^[(][0-9]{2}[)] [0-9]{5}-[0-9]{4}$", "(XX) XXXXX-XXXX")]
+    [ExactLength(11)]
     public string? CellPhone { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

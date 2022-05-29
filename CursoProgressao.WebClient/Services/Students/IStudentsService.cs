@@ -4,5 +4,5 @@ namespace CursoProgressao.WebClient.Services.Students;
 
 public interface IStudentsService
 {
-    public Task<IEnumerable<GetAllStudentsDto>> GetAllAsync();
+    public Task<GetAllPartialStudentsDto> GetAllAsync();
 }

@@ -1,7 +1,0 @@
-﻿@page "/"
-@inject IStudentsService studentsService;
-
-<div class="container">
-    <Button Text="Get All" OnClick="@(async () => await GetAllAsync())"/>
-    <Table Data="@StudentsStore.Students.Values.ToList()"/>
-</div>

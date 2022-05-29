@@ -5,12 +5,12 @@ namespace CursoProgressao.Shared.Dto.Responsibles;
 
 public class CreateResponsibleDto
 {
-    [CustomRequired]
-    [CustomMinLengthAttribute(2)]
+    [Required]
+    [MinLength(2)]
     public string FirstName { get; set; } = null!;
-    [CustomRequired]
-    [CustomMinLengthAttribute(2)]
+    [Required]
+    [MinLength(2)]
     public string LastName { get; set; } = null!;
-    [CustomRequired]
+    [Required]
     public CreateDocumentDto Document { get; set; } = null!;
 }

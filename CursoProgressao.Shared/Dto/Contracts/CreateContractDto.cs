@@ -4,16 +4,16 @@ namespace CursoProgressao.Shared.Dto.Contracts;
 
 public class CreateContractDto
 {
-    [CustomRequired]
+    [Required]
     public DateTime StartDate { get; set; }
-    [CustomRequired]
+    [Required]
     public DateTime EndDate { get; set; }
-    [CustomRequired]
+    [Required]
     [Price]
     public float PaymentValue { get; set; }
-    [CustomRequired]
+    [Required]
     [Day]
     public int DueDateDay { get; set; }
-    [CustomRequired]
+    [Required]
     public Guid ClassId { get; set; }
 }

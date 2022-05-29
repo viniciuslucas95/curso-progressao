@@ -1,11 +1,10 @@
-﻿using CursoProgressao.Shared.Attributes;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CursoProgressao.Shared.Dto.Classes;
 
 public class UpdateClassDto : IValidatableObject
 {
-    [CustomMinLengthAttribute(2)]
+    [Attributes.MinLength(2)]
     public string Name { get; set; } = null!;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

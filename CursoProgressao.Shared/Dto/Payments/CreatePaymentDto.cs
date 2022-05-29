@@ -4,11 +4,11 @@ namespace CursoProgressao.Shared.Dto.Payments;
 
 public class CreatePaymentDto
 {
-    [CustomRequired]
+    [Required]
     [Price]
     public float Value { get; set; }
-    [CustomRequired]
+    [Required]
     public DateTime PaymentDate { get; set; }
-    [CustomRequired]
+    [Required]
     public DateTime ReferenceDate { get; set; }
 }

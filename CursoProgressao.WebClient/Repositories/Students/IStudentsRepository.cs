@@ -4,5 +4,5 @@ namespace CursoProgressao.WebClient.Repositories.Students;
 
 public interface IStudentsRepository
 {
-    public Task<IEnumerable<GetAllStudentsDto>> GetAllAsync();
+    public Task<GetAllPartialStudentsDto> GetAllAsync(GetAllStudentsQueryDto? query = null);
 }

@@ -1,42 +1,34 @@
-﻿using CursoProgressao.Shared.Dto.Students;
+﻿using CursoProgressao.Shared.Dto.Documents;
+using CursoProgressao.Shared.Dto.Students;
 
 namespace CursoProgressao.WebClient.Repositories.Students;
 
 public class FakeStudentsRepository : IStudentsRepository
 {
-    public async Task<IEnumerable<GetAllStudentsDto>> GetAllAsync()
+    public async Task<GetAllPartialStudentsDto> GetAllAsync(GetAllStudentsQueryDto? query = null)
     {
-        List<GetAllStudentsDto> result = new()
+        IEnumerable<GetPartialStudentDto> result = new List<GetPartialStudentDto>();
+
+        await Task.Run(() => result = new List<GetPartialStudentDto>()
         {
-            new GetAllStudentsDto()
+            new GetPartialStudentDto()
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Carlos",
-                LastName = "Daniel de Almeida",
-                Contract = new()
+                LastName = "Daniel",
+                Document = new GetOneDocumentDto()
                 {
-                    ActiveClassesId = new[] {Guid.NewGuid()},
-                    IsOwing = false
+                    Rg = "29.648.469-4",
+                    Cpf = "123.654.789-46"
                 },
-                Responsible = new()
-                {
-                    FirstName = "Pedro",
-                    LastName = "Alvares de Almeida",
-                    Document = new()
-                    {
-                        Rg = "48.879.251-4",
-                        Cpf = "456.987.123-45"
-                    }
-                },
-                Contact = new()
-                {
-                    Email = "carlos.daniel@hotmail.com",
-                    Landline = "(21) 2468-4879",
-                    CellPhone = "(21) 94689-1464"
-                }
-            }
-        };
 
-        return await Task.FromResult(result);
+            }
+        });
+
+        return new GetAllPartialStudentsDto()
+        {
+            Count = 0,
+            Students = result
+        };
     }
 }

@@ -5,9 +5,9 @@ namespace CursoProgressao.Shared.Dto.Residences;
 
 public class UpdateResidenceDto : IValidatableObject
 {
-    [CustomRegex("^[0-9]{5}-[0-9]{3}$", "XXXXX-XXX")]
+    [ExactLength(8)]
     public string? ZipCode { get; set; }
-    [CustomMinLength(3)]
+    [Attributes.MinLength(2)]
     public string? Address { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CursoProgressao.Shared.Attributes;
 
-internal class DayAttribute : ValidationAttribute
+public class DayAttribute : ValidationAttribute
 {
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {

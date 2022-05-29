@@ -1,5 +1,4 @@
-﻿using CursoProgressao.Shared.Attributes;
-using CursoProgressao.Shared.Dto.Contacts;
+﻿using CursoProgressao.Shared.Dto.Contacts;
 using CursoProgressao.Shared.Dto.Documents;
 using CursoProgressao.Shared.Dto.Residences;
 using System.ComponentModel.DataAnnotations;
@@ -8,9 +7,9 @@ namespace CursoProgressao.Shared.Dto.Students;
 
 public class UpdateStudentDto : IValidatableObject
 {
-    [CustomMinLengthAttribute(2)]
+    [Attributes.MinLength(2)]
     public string? FirstName { get; set; }
-    [CustomMinLengthAttribute(2)]
+    [Attributes.MinLength(2)]
     public string? LastName { get; set; }
     public string? Note { get; set; }
     public DateTime? BirthDate { get; set; }

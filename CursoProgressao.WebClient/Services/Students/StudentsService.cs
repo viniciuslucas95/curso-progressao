@@ -10,7 +10,7 @@ public class StudentsService : IStudentsService
     public StudentsService(IStudentsRepository repository)
         => _repository = repository;
 
-    public async Task<IEnumerable<GetAllStudentsDto>> GetAllAsync()
+    public async Task<GetAllPartialStudentsDto> GetAllAsync()
     {
         return await _repository.GetAllAsync();
     }
