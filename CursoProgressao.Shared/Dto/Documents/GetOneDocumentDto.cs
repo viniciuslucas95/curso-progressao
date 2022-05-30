@@ -3,5 +3,5 @@
 public class GetOneDocumentDto
 {
     public string? Rg { get; set; }
-    public string? Cpf { get; set; } = null!;
+    public string? Cpf { get; set; }
 }
